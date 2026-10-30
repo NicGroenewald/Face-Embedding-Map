@@ -398,7 +398,7 @@ def main() -> dict:
         matrix,
         tick_labels,
         FIGURES_DIR / "live_heatmap",
-        title="Mean embedding distance between scans (one subject; darker = further)",
+        title="Mean embedding distance between scans (one subject; darker = closer)",
     )
     save_lighting_panel(payload, FIGURES_DIR / "live_lighting")
     save_pooling(frame_level, pooled_values, FIGURES_DIR / "live_pooling")
