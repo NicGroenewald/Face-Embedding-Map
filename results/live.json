@@ -1,0 +1,539 @@
+{
+  "common": {
+    "schema_version": 1,
+    "created": "2026-10-30T12:57:25Z",
+    "git_commit": "4179256",
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0",
+      "facenet-pytorch": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "device": "mps",
+    "seed": 0,
+    "notes": [
+      "Distances are Euclidean between unit vectors; cosine equivalents are cos = 1 - d^2/2 and are listed under cosine_equivalents.",
+      "Frames within a scan are temporally correlated (frame_lag): the 10 frames are not 10 independent samples, so effective sample size < 10.",
+      "Scan means are renormalised before use; mean-vector norms before renormalisation were 0.9728..0.9967 (mean 0.9906), so pooling barely changes direction.",
+      "The cross-domain check is domain-confounded by capture, crop and resolution; it is not a calibrated impostor distribution and is neither an upper nor a lower bound on webcam-domain stranger distance.",
+      "design is unbalanced by necessity: room light has front+left only; flash has front/left/right/bottom; two repeats per condition; one subject."
+    ]
+  },
+  "design": {
+    "subject": "nic",
+    "scans": 12,
+    "frames_per_scan": 10,
+    "captured": "2026-09-06",
+    "conditions": [
+      "room/front",
+      "room/left",
+      "flash/front",
+      "flash/left",
+      "flash/right",
+      "flash/bottom"
+    ],
+    "imbalance_note": "room light has front+left only; flash has front/left/right/bottom; two repeats per condition; one subject"
+  },
+  "within_scan_jitter": [
+    {
+      "scan": "room_front_1",
+      "min": 0.05459653396244241,
+      "mean": 0.20594818067182774,
+      "max": 0.34009281398576535
+    },
+    {
+      "scan": "room_front_2",
+      "min": 0.04596245198185501,
+      "mean": 0.1720835577946509,
+      "max": 0.2769236437436413
+    },
+    {
+      "scan": "room_left_1",
+      "min": 0.05433338511769464,
+      "mean": 0.15212170820966187,
+      "max": 0.2446301160058195
+    },
+    {
+      "scan": "room_left_2",
+      "min": 0.07577518198797913,
+      "mean": 0.17980099335799468,
+      "max": 0.28566550933853374
+    },
+    {
+      "scan": "flash_front_1",
+      "min": 0.040615543314036426,
+      "mean": 0.11442737739498973,
+      "max": 0.19846503384578004
+    },
+    {
+      "scan": "flash_front_2",
+      "min": 0.04740508772012414,
+      "mean": 0.17005507583457916,
+      "max": 0.2802662419539228
+    },
+    {
+      "scan": "flash_left_1",
+      "min": 0.06910585367158688,
+      "mean": 0.20397696540988078,
+      "max": 0.3840936484546637
+    },
+    {
+      "scan": "flash_left_2",
+      "min": 0.10352832516688834,
+      "mean": 0.21208761972249385,
+      "max": 0.3479713639537407
+    },
+    {
+      "scan": "flash_right_1",
+      "min": 0.08200364535673278,
+      "mean": 0.17126842200705433,
+      "max": 0.2569218419202327
+    },
+    {
+      "scan": "flash_right_2",
+      "min": 0.08939231070407257,
+      "mean": 0.15303506889290758,
+      "max": 0.24190794354200407
+    },
+    {
+      "scan": "flash_bottom_1",
+      "min": 0.12891395303782519,
+      "mean": 0.3344810855464966,
+      "max": 0.4424971102743406
+    },
+    {
+      "scan": "flash_bottom_2",
+      "min": 0.049194934326012615,
+      "mean": 0.16710234662856793,
+      "max": 0.2621622501952909
+    }
+  ],
+  "same_condition": [
+    {
+      "condition": "room/front",
+      "min": 0.1874929387114674,
+      "mean": 0.2637173502673815,
+      "max": 0.3744011504965602
+    },
+    {
+      "condition": "room/left",
+      "min": 0.18333767921327934,
+      "mean": 0.22681641268933334,
+      "max": 0.3246502716456481
+    },
+    {
+      "condition": "flash/front",
+      "min": 0.18444082307069776,
+      "mean": 0.24639284049165874,
+      "max": 0.3553487137215133
+    },
+    {
+      "condition": "flash/left",
+      "min": 0.22820830473888898,
+      "mean": 0.30950719257810416,
+      "max": 0.49708067601595607
+    },
+    {
+      "condition": "flash/right",
+      "min": 0.17597748112765166,
+      "mean": 0.26281247181684286,
+      "max": 0.3393114484416953
+    },
+    {
+      "condition": "flash/bottom",
+      "min": 0.2496492172579001,
+      "mean": 0.3707098294178561,
+      "max": 0.46949270375198754
+    }
+  ],
+  "noise_floor_mean": 0.18636570012259213,
+  "intensity_effect": {
+    "condition_pair": [
+      "room/front",
+      "flash/front"
+    ],
+    "min": 0.16831819172643603,
+    "mean": 0.2584675149257344,
+    "max": 0.38385540387962097,
+    "note": "observational comparison: mean 0.258 sits within the same-condition between-scan means 0.227-0.371 (within-scan jitter mean 0.186). Room-front and flash-front were captured in separate scans, so this design cannot attribute any difference to brightness alone and makes no causal claim."
+  },
+  "direction_effect": {
+    "pairs": [
+      {
+        "pair": [
+          "flash/front",
+          "flash/left"
+        ],
+        "min": 0.6195030431810677,
+        "mean": 0.7097976768133317,
+        "max": 0.7995732874544542
+      },
+      {
+        "pair": [
+          "flash/front",
+          "flash/right"
+        ],
+        "min": 0.5734429574036141,
+        "mean": 0.635859626044158,
+        "max": 0.6929876229918016
+      },
+      {
+        "pair": [
+          "flash/front",
+          "flash/bottom"
+        ],
+        "min": 0.6039783556470288,
+        "mean": 0.7334788308906269,
+        "max": 0.8156995836949209
+      },
+      {
+        "pair": [
+          "flash/left",
+          "flash/right"
+        ],
+        "min": 0.4182024508282864,
+        "mean": 0.5105692673018399,
+        "max": 0.6201585873106327
+      },
+      {
+        "pair": [
+          "flash/left",
+          "flash/bottom"
+        ],
+        "min": 0.73626200282187,
+        "mean": 0.8079007634118548,
+        "max": 0.8745138057795075
+      },
+      {
+        "pair": [
+          "flash/right",
+          "flash/bottom"
+        ],
+        "min": 0.7948364132995583,
+        "mean": 0.8879459613073568,
+        "max": 0.9670595566095594
+      }
+    ],
+    "mean": 0.7142586876281948
+  },
+  "direction_to_noise_ratio": 3.8325651509819267,
+  "pooling": {
+    "frame_level_mean": 0.6042098974536706,
+    "scan_mean_level_mean": 0.575074669718352,
+    "reduction_pct": 4.822037483679692,
+    "frame_level_n": 6600,
+    "scan_mean_level_n": 66,
+    "raw_scan_mean_norm_before_renormalisation": {
+      "min": 0.9728270479991059,
+      "mean": 0.9905826023889373,
+      "max": 0.9966917864618992
+    }
+  },
+  "worst_genuine_distance": {
+    "frame_level": 0.9670595566095594,
+    "scan_mean_level": 0.9149121363152759,
+    "pair": [
+      "flash_right_2",
+      "flash_bottom_2"
+    ],
+    "cosine_equivalent": 0.5323979069850611,
+    "cosine_distance": 0.4676020930149389,
+    "worst_scan_mean_pair": {
+      "pair": [
+        "flash_right_2",
+        "flash_bottom_2"
+      ],
+      "distance": 0.914912136315275,
+      "cosine_similarity": 0.5814678914115099
+    },
+    "frame_level_n": 100
+  },
+  "cross_domain_impostor": {
+    "olivetti_min_distance_to_any_live_scan": 0.8869441491869282,
+    "olivetti_mean_of_min": 1.287527190362124,
+    "nearest_live_scan": "flash_bottom_2",
+    "n_olivetti": 400,
+    "frame_level_min_distance": 0.8802552908579022,
+    "caveat": "different capture/crop/resolution; not a calibrated impostor distribution, and neither an upper nor a lower bound on webcam-domain stranger distance"
+  },
+  "matrix_names": [
+    "room_front_1",
+    "room_front_2",
+    "room_left_1",
+    "room_left_2",
+    "flash_front_1",
+    "flash_front_2",
+    "flash_left_1",
+    "flash_left_2",
+    "flash_right_1",
+    "flash_right_2",
+    "flash_bottom_1",
+    "flash_bottom_2"
+  ],
+  "matrix_mean_distance": [
+    [
+      0.20594818067182774,
+      0.2637173502673815,
+      0.5262031033623198,
+      0.5085917144810651,
+      0.27354661966789345,
+      0.25494310626065086,
+      0.7224021125766719,
+      0.712456820269735,
+      0.6307790643117829,
+      0.6486455311693723,
+      0.728851565693957,
+      0.7585263913272976
+    ],
+    [
+      0.2637173502673815,
+      0.1720835577946509,
+      0.5416776615975115,
+      0.5363798941114257,
+      0.23093639041478184,
+      0.27444394335961136,
+      0.7315400954402875,
+      0.7259068350865189,
+      0.6558080041333497,
+      0.6579309495213941,
+      0.7330785741443896,
+      0.7599320817322025
+    ],
+    [
+      0.5262031033623198,
+      0.5416776615975115,
+      0.15212170820966187,
+      0.22681641268933334,
+      0.5649881726225509,
+      0.48778922721216295,
+      0.4964685579073228,
+      0.5250369493337964,
+      0.5650677866736457,
+      0.5866309579786286,
+      0.7339778797207352,
+      0.7501924185704198
+    ],
+    [
+      0.5085917144810651,
+      0.5363798941114257,
+      0.22681641268933334,
+      0.17980099335799468,
+      0.5520716750941607,
+      0.4731491735859526,
+      0.5175308965584812,
+      0.5453255930064118,
+      0.5979397367667937,
+      0.625426314341471,
+      0.7045713723854636,
+      0.7169414611841909
+    ],
+    [
+      0.27354661966789345,
+      0.23093639041478184,
+      0.5649881726225509,
+      0.5520716750941607,
+      0.11442737739498973,
+      0.24639284049165874,
+      0.7289497630419768,
+      0.7347905916658081,
+      0.6433768949040819,
+      0.6434045660398924,
+      0.7300516434905957,
+      0.7545502156312779
+    ],
+    [
+      0.25494310626065086,
+      0.27444394335961136,
+      0.48778922721216295,
+      0.4731491735859526,
+      0.24639284049165874,
+      0.17005507583457916,
+      0.6881309192636187,
+      0.6873194332819232,
+      0.6150799958706259,
+      0.6415770473620319,
+      0.707634244600357,
+      0.7416792198402775
+    ],
+    [
+      0.7224021125766719,
+      0.7315400954402875,
+      0.4964685579073228,
+      0.5175308965584812,
+      0.7289497630419768,
+      0.6881309192636187,
+      0.20397696540988078,
+      0.30950719257810416,
+      0.5167698298501362,
+      0.5428042120518703,
+      0.8008547208078448,
+      0.8157263246879859
+    ],
+    [
+      0.712456820269735,
+      0.7259068350865189,
+      0.5250369493337964,
+      0.5453255930064118,
+      0.7347905916658081,
+      0.6873194332819232,
+      0.30950719257810416,
+      0.21208761972249385,
+      0.4905198058111961,
+      0.49218322149415683,
+      0.7932441876361345,
+      0.8217778205154541
+    ],
+    [
+      0.6307790643117829,
+      0.6558080041333497,
+      0.5650677866736457,
+      0.5979397367667937,
+      0.6433768949040819,
+      0.6150799958706259,
+      0.5167698298501362,
+      0.4905198058111961,
+      0.17126842200705433,
+      0.26281247181684286,
+      0.8513303658845297,
+      0.8876317609588011
+    ],
+    [
+      0.6486455311693723,
+      0.6579309495213941,
+      0.5866309579786286,
+      0.625426314341471,
+      0.6434045660398924,
+      0.6415770473620319,
+      0.5428042120518703,
+      0.49218322149415683,
+      0.26281247181684286,
+      0.15303506889290758,
+      0.8899826615130821,
+      0.9228390568730147
+    ],
+    [
+      0.728851565693957,
+      0.7330785741443896,
+      0.7339778797207352,
+      0.7045713723854636,
+      0.7300516434905957,
+      0.707634244600357,
+      0.8008547208078448,
+      0.7932441876361345,
+      0.8513303658845297,
+      0.8899826615130821,
+      0.3344810855464966,
+      0.3707098294178561
+    ],
+    [
+      0.7585263913272976,
+      0.7599320817322025,
+      0.7501924185704198,
+      0.7169414611841909,
+      0.7545502156312779,
+      0.7416792198402775,
+      0.8157263246879859,
+      0.8217778205154541,
+      0.8876317609588011,
+      0.9228390568730147,
+      0.3707098294178561,
+      0.16710234662856793
+    ]
+  ],
+  "frame_lag": {
+    "lags": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "mean_distance": [
+      0.15338390383552838,
+      0.1638776162499904,
+      0.185569859776381,
+      0.19050902009047077,
+      0.19972737985511396,
+      0.2127992698692096,
+      0.22453183215676875,
+      0.23635089969580417,
+      0.25680602740532693
+    ],
+    "n_pairs": [
+      108,
+      96,
+      84,
+      72,
+      60,
+      48,
+      36,
+      24,
+      12
+    ],
+    "interpretation": "distance grows with frame lag, so frames within a scan are not independent draws (slow head/pose drift during the scan); the effective sample size is below 10."
+  },
+  "frame_outlier": {
+    "frame_index": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "mean_distance": [
+      0.2433533792681658,
+      0.19380233291798873,
+      0.18789571253085005,
+      0.17834521679315596,
+      0.16772370383461585,
+      0.16710384209141735,
+      0.17733903295136003,
+      0.17313132581393567,
+      0.1887980585245408,
+      0.1861643964999299
+    ]
+  },
+  "cosine_equivalents": {
+    "noise_floor_mean": {
+      "euclidean": 0.18636570012259213,
+      "cosine_similarity": 0.982633912908908,
+      "cosine_distance": 0.017366087091091966
+    },
+    "intensity_effect_mean": {
+      "euclidean": 0.2584675149257344,
+      "cosine_similarity": 0.9665972718640576,
+      "cosine_distance": 0.03340272813594236
+    },
+    "direction_effect_mean": {
+      "euclidean": 0.7142586876281948,
+      "cosine_similarity": 0.7449172635738244,
+      "cosine_distance": 0.25508273642617557
+    },
+    "worst_genuine_frame": {
+      "euclidean": 0.9670595566095594,
+      "cosine_similarity": 0.5323979069850611,
+      "cosine_distance": 0.4676020930149389
+    },
+    "worst_genuine_scan_mean": {
+      "euclidean": 0.9149121363152759,
+      "cosine_similarity": 0.581467891411509,
+      "cosine_distance": 0.418532108588491
+    },
+    "cross_domain_min": {
+      "euclidean": 0.8869441491869282,
+      "cosine_similarity": 0.6066650381115379,
+      "cosine_distance": 0.393334961888462
+    }
+  }
+}

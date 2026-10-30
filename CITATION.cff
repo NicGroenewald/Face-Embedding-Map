@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this code or the accompanying paper, please cite it as below."
+type: software
+title: "Face Embedding Map: raw-pixel Eigenfaces vs frozen deep face embeddings, with a webcam illumination study"
+abstract: >-
+  A controlled replication and measurement study comparing a raw-pixel Eigenfaces representation
+  (PCA on 4096-d Olivetti faces) with a frozen VGGFace2-pretrained Inception-ResNet-v1 embedding
+  (512-d unit vectors), using identical PCA settings and full-dimensional metrics, plus an open-set
+  verification protocol and a one-subject webcam study of lighting intensity and direction.
+authors:
+  - family-names: Groenewald
+    given-names: Nic
+    affiliation: "Independent project"
+version: 0.2.0
+date-released: "2026-10-30"
+repository-code: "https://github.com/NicGroenewald/Face-Embedding-Map"
+keywords:
+  - face recognition
+  - face embeddings
+  - eigenfaces
+  - principal component analysis
+  - illumination
+  - biometrics
+  - reproducibility

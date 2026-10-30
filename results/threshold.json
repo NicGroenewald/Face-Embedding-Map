@@ -1,0 +1,888 @@
+{
+  "common": {
+    "schema_version": 1,
+    "created": "2026-10-30T11:43:02Z",
+    "git_commit": "0ee74d4",
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0",
+      "facenet-pytorch": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "device": "mps",
+    "seed": 0,
+    "notes": [
+      "Map_a, map_b, headline and session_bias_check are DESCRIPTIVE and IN-SAMPLE: thresholds are chosen and evaluated on the same scores, and the EER is an interpolated crossing between observed thresholds, not a realisable threshold. They compare representations under one protocol; they are not calibrated error rates for unseen identities.",
+      "This protocol is KNOWN-POPULATION CROSS-IDENTITY verification, not open-set identification and not a FaceID/deployment estimate: every impostor is one of the same 40 Olivetti identities, so no unknown identity enters the descriptive block.",
+      "Score = minimum Euclidean distance from a probe image to the 5 enrolment images; decision = accept if score <= threshold. Trials are full-dimensional, no PCA.",
+      "Impostor trials: for each identity, the 390 images (all 10 images of each of the other 39 identities) are scored against that identity's enrolment.",
+      "Trial granularity: 200 genuine trials per split give FRR resolution 0.5%; 15,600 impostor trials give FAR resolution 0.0064%. Map B's mean EER (0.22%) is below the genuine-trial grid resolution, so it is 'at or below the measurement floor'.",
+      "calibration_heldout_evaluation is the separate honest check: thresholds are chosen on 13 calibration identities and applied to 13 identity-disjoint evaluation identities, with 14 identities enrolled in no gallery used as unknown-to-gallery probes. All 40 identities still come from Olivetti; the 5 partitions overlap and are not independent samples. It is a small-sample optimism check, not a deployment estimate.",
+      "Calibration FAR targets are 1% (primary) and 0.1% (secondary). No FRR target is used because the 65-genuine calibration fold has 1/65 = 1.54% FRR granularity, so a 1% FRR target is unresolvable and would force a degenerate infinite threshold.",
+      "The threshold_curves figure is drawn from the descriptive genuine/impostor scores pooled over the 5 primary splits."
+    ]
+  },
+  "protocol": {
+    "enrol": 5,
+    "probe": 5,
+    "impostor_probes_per_identity": 390,
+    "genuine_trials_per_split": 200,
+    "impostor_trials_per_split": 15600,
+    "splits": "5 random 5/5 splits, seeds 0-4",
+    "identical_for": [
+      "map_a",
+      "map_b"
+    ],
+    "score": "minimum Euclidean distance from probe to the 5 enrolment images",
+    "accept_rule": "distance <= threshold",
+    "verification_type": "known-population cross-identity verification (not open-set, not deployment)",
+    "impostor_population": "the other 39 identities from the same 40-person Olivetti set; every identity appears in both genuine and impostor trials",
+    "threshold_calibration": "none for map_a/map_b/headline/session_bias_check: those are in-sample descriptive values. See calibration_heldout_evaluation for identity-disjoint calibration vs test."
+  },
+  "map_a": {
+    "per_split": [
+      {
+        "eer": 0.07499999999999996,
+        "eer_threshold": 8.383009301213251,
+        "tar_at_far_1e-3": 0.615,
+        "tar_at_far_1e-2": 0.76,
+        "auc": 0.979665705128205,
+        "far_at_frr_1pct": 0.33371794871794874,
+        "threshold_at_frr_1pct": 10.135546553121493,
+        "far_at_eer": 0.075,
+        "frr_at_eer": 0.075,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 0
+      },
+      {
+        "eer": 0.08499999999999996,
+        "eer_threshold": 8.514803503846741,
+        "tar_at_far_1e-3": 0.58,
+        "tar_at_far_1e-2": 0.78,
+        "auc": 0.9712275641025641,
+        "far_at_frr_1pct": 0.5342948717948718,
+        "threshold_at_frr_1pct": 11.227742581820067,
+        "far_at_eer": 0.08493589743589744,
+        "frr_at_eer": 0.085,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 1
+      },
+      {
+        "eer": 0.09999999999999998,
+        "eer_threshold": 8.612841161472575,
+        "tar_at_far_1e-3": 0.535,
+        "tar_at_far_1e-2": 0.69,
+        "auc": 0.9604849358974359,
+        "far_at_frr_1pct": 0.5282692307692308,
+        "threshold_at_frr_1pct": 11.08911824848618,
+        "far_at_eer": 0.09993589743589744,
+        "frr_at_eer": 0.1,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 2
+      },
+      {
+        "eer": 0.07532051282051282,
+        "eer_threshold": 8.392292950171507,
+        "tar_at_far_1e-3": 0.625,
+        "tar_at_far_1e-2": 0.76,
+        "auc": 0.9709548076923077,
+        "far_at_frr_1pct": 0.6336538461538461,
+        "threshold_at_frr_1pct": 11.659705077672381,
+        "far_at_eer": 0.07532051282051282,
+        "frr_at_eer": 0.08,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 3
+      },
+      {
+        "eer": 0.09999999999999998,
+        "eer_threshold": 8.6231254396872,
+        "tar_at_far_1e-3": 0.595,
+        "tar_at_far_1e-2": 0.73,
+        "auc": 0.9676407051282051,
+        "far_at_frr_1pct": 0.39974358974358976,
+        "threshold_at_frr_1pct": 10.452377591800316,
+        "far_at_eer": 0.1,
+        "frr_at_eer": 0.1,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 4
+      }
+    ],
+    "mean": {
+      "eer": 0.08706410256410255,
+      "eer_threshold": 8.505214471278254,
+      "tar_at_far_1e-3": 0.5900000000000001,
+      "tar_at_far_1e-2": 0.744,
+      "auc": 0.9699947435897436,
+      "far_at_frr_1pct": 0.48593589743589743,
+      "threshold_at_frr_1pct": 10.912898010580088,
+      "far_at_eer": 0.08703846153846154,
+      "frr_at_eer": 0.08800000000000001,
+      "frr_at_frr_1pct": 0.01
+    },
+    "std": {
+      "eer": 0.012473871442761695,
+      "eer_threshold": 0.1153947832211201,
+      "tar_at_far_1e-3": 0.03535533905932736,
+      "tar_at_far_1e-2": 0.03507135583350039,
+      "auc": 0.006927247036149016,
+      "far_at_frr_1pct": 0.11890196771166897,
+      "threshold_at_frr_1pct": 0.6132405352453589,
+      "far_at_eer": 0.012459945688016604,
+      "frr_at_eer": 0.011510864433221342,
+      "frr_at_frr_1pct": 0.0
+    }
+  },
+  "map_b": {
+    "per_split": [
+      {
+        "eer": 6.41025641025641e-05,
+        "eer_threshold": 0.7816580036319024,
+        "tar_at_far_1e-3": 1.0,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999990384615385,
+        "far_at_frr_1pct": 6.41025641025641e-05,
+        "threshold_at_frr_1pct": 0.7756808237624897,
+        "far_at_eer": 6.41025641025641e-05,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 0
+      },
+      {
+        "eer": 0.0014102564102564104,
+        "eer_threshold": 0.8572624748911745,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999814102564102,
+        "far_at_frr_1pct": 0.0007692307692307692,
+        "threshold_at_frr_1pct": 0.8382135092968345,
+        "far_at_eer": 0.0014102564102564104,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 1
+      },
+      {
+        "eer": 0.00467948717948718,
+        "eer_threshold": 0.8963369093286512,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999673076923077,
+        "far_at_frr_1pct": 0.000576923076923077,
+        "threshold_at_frr_1pct": 0.8090859790159545,
+        "far_at_eer": 0.00467948717948718,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 2
+      },
+      {
+        "eer": 6.41025641025641e-05,
+        "eer_threshold": 0.7560162573679331,
+        "tar_at_far_1e-3": 1.0,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999993589743589,
+        "far_at_frr_1pct": 0.0,
+        "threshold_at_frr_1pct": 0.7073595332021061,
+        "far_at_eer": 6.41025641025641e-05,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 3
+      },
+      {
+        "eer": 0.0050000000000000044,
+        "eer_threshold": 0.9067932448134313,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 0.995,
+        "auc": 0.9999253205128205,
+        "far_at_frr_1pct": 0.0007692307692307692,
+        "threshold_at_frr_1pct": 0.8253460314705504,
+        "far_at_eer": 0.005,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 4
+      }
+    ],
+    "mean": {
+      "eer": 0.0022435897435897447,
+      "eer_threshold": 0.8396133780066185,
+      "tar_at_far_1e-3": 0.994,
+      "tar_at_far_1e-2": 0.999,
+      "auc": 0.9999744871794871,
+      "far_at_frr_1pct": 0.00043589743589743585,
+      "threshold_at_frr_1pct": 0.791137175349587,
+      "far_at_eer": 0.0022435897435897434,
+      "frr_at_eer": 0.005,
+      "frr_at_frr_1pct": 0.01
+    },
+    "std": {
+      "eer": 0.002435475671988831,
+      "eer_threshold": 0.0678039234275119,
+      "tar_at_far_1e-3": 0.005477225575051666,
+      "tar_at_far_1e-2": 0.002236067977499792,
+      "auc": 3.057043822003996e-05,
+      "far_at_frr_1pct": 0.00037760708910315743,
+      "threshold_at_frr_1pct": 0.052359762070330974,
+      "far_at_eer": 0.00243547567198883,
+      "frr_at_eer": 0.0,
+      "frr_at_frr_1pct": 0.0
+    }
+  },
+  "headline": {
+    "statement": "Descriptive same-sample result (known-population cross-identity verification, thresholds not calibrated on held-out identities): at a 1% false-accept rate, Map B accepts 99.9% of genuine probes versus 74.4% for Map A; at matched 1% false-reject rate Map A accepts 48.59% of impostors versus 0.044% for Map B.",
+    "map_b_eer": 0.0022435897435897447,
+    "map_a_eer": 0.08706410256410255,
+    "eer_reduction_factor": 38.80571428571426,
+    "far_gap_at_matched_frr": "descriptive/in-sample at FRR=1%: FAR 48.59% (Map A) vs 0.044% (Map B), 1114.8x more impostors accepted by Map A"
+  },
+  "session_bias_check": {
+    "enrol_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "probe_indices": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "map_a": {
+      "eer": 0.08999999999999997,
+      "eer_threshold": 8.558238323671622,
+      "tar_at_far_1e-3": 0.585,
+      "tar_at_far_1e-2": 0.715,
+      "auc": 0.9623855769230769,
+      "far_at_frr_1pct": 0.7152564102564103,
+      "threshold_at_frr_1pct": 12.217168403511096,
+      "far_at_eer": 0.09,
+      "frr_at_eer": 0.09,
+      "frr_at_frr_1pct": 0.01
+    },
+    "map_b": {
+      "eer": 0.002564102564102564,
+      "eer_threshold": 0.8847233719277547,
+      "tar_at_far_1e-3": 0.995,
+      "tar_at_far_1e-2": 1.0,
+      "auc": 0.9999785256410256,
+      "far_at_frr_1pct": 0.0005128205128205128,
+      "threshold_at_frr_1pct": 0.8060723449017987,
+      "far_at_eer": 0.002564102564102564,
+      "frr_at_eer": 0.005,
+      "frr_at_frr_1pct": 0.01
+    },
+    "note": "fixed first-half/second-half split per identity; descriptive secondary check only (it removes split randomness but can encode capture order)"
+  },
+  "score_rule_sensitivity": {
+    "mean_template": {
+      "map_a": {
+        "eer_mean": 0.11852564102564103,
+        "eer_std": 0.009918098201084944,
+        "auc_mean": 0.9462597435897436
+      },
+      "map_b": {
+        "eer_mean": 0.0022179487179487195,
+        "eer_std": 0.002571943140650214,
+        "auc_mean": 0.9999770512820513
+      }
+    },
+    "note": "Descriptive/in-sample sensitivity check: the primary rule is the minimum distance to the 5 enrolment images; averaging the enrolment images into one template gives the same ranking."
+  },
+  "calibration_heldout_evaluation": {
+    "protocol": {
+      "purpose": "identity-disjoint calibration-vs-test check on the same 40 Olivetti identities; NOT an open-set or deployment evaluation",
+      "identity_split": "13 calibration / 13 identity-disjoint evaluation / 14 unknown-to-gallery identities per partition",
+      "partition_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "calibration": "13 identities, enrol 5 / probe 5: 65 genuine and 1560 cross-identity impostor scores per partition; thresholds chosen here ONLY",
+      "evaluation": "13 identity-disjoint identities, enrol 5 / probe 5: empirical FAR/FRR/TAR measured at the calibration thresholds",
+      "unknown": "14 identities enrolled in no gallery: all 10 images (140 probes) scored against the 13 evaluation galleries; unknown_accept_rate is the fraction accepted as any enrolled identity",
+      "targets": "calibration FAR 1% (primary) and 0.1% (secondary); no FRR target because 65 calibration genuine trials give 1.54% FRR granularity",
+      "threshold_rule": "conservative empirical FAR threshold (tie-safe): largest threshold whose calibration FAR does not exceed the target",
+      "eer_interpolation": "interpolated EER on calibration scores is reported with the held-out FAR/FRR at that threshold; it is not an achievable operating point",
+      "not_open_set": "unknown identities are unknown to the gallery, not to the frozen model (it saw faces during pretraining); Olivetti is one small dataset, not an open-world population",
+      "non_independent_partitions": "the 5 partition seeds reuse the same 40 identities and overlap heavily; they are repeated draws from one small dataset, not five independent samples"
+    },
+    "map_a": {
+      "per_partition": [
+        {
+          "partition_seed": 0,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 7.638183601533744,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.09230769230769231,
+              "evaluation_far": 0.025,
+              "evaluation_frr": 0.35384615384615387,
+              "evaluation_tar": 0.6461538461538462,
+              "unknown_accept_rate": 0.17142857142857143
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 6.958045790478744,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.2,
+              "evaluation_far": 0.005128205128205128,
+              "evaluation_frr": 0.4461538461538462,
+              "evaluation_tar": 0.5538461538461539,
+              "unknown_accept_rate": 0.06428571428571428
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.06153846153846154,
+            "calibration_eer_threshold": 8.49910002272921,
+            "evaluation_far_at_calibration_eer_threshold": 0.10256410256410256,
+            "evaluation_frr_at_calibration_eer_threshold": 0.2153846153846154,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 1,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 7.2788056953703295,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.26153846153846155,
+              "evaluation_far": 0.009615384615384616,
+              "evaluation_frr": 0.13846153846153847,
+              "evaluation_tar": 0.8615384615384616,
+              "unknown_accept_rate": 0.16428571428571428
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 6.24956525703026,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.4,
+              "evaluation_far": 0.0,
+              "evaluation_frr": 0.4153846153846154,
+              "evaluation_tar": 0.5846153846153846,
+              "unknown_accept_rate": 0.0
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.08269230769230769,
+            "calibration_eer_threshold": 8.804040228143746,
+            "evaluation_far_at_calibration_eer_threshold": 0.0782051282051282,
+            "evaluation_frr_at_calibration_eer_threshold": 0.046153846153846156,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 2,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 7.573309250836028,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.16923076923076924,
+              "evaluation_far": 0.007051282051282051,
+              "evaluation_frr": 0.23076923076923078,
+              "evaluation_tar": 0.7692307692307693,
+              "unknown_accept_rate": 0.24285714285714285
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 6.924458459787815,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.2923076923076923,
+              "evaluation_far": 0.000641025641025641,
+              "evaluation_frr": 0.36923076923076925,
+              "evaluation_tar": 0.6307692307692307,
+              "unknown_accept_rate": 0.05
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.09230769230769231,
+            "calibration_eer_threshold": 9.201887377368267,
+            "evaluation_far_at_calibration_eer_threshold": 0.11987179487179488,
+            "evaluation_frr_at_calibration_eer_threshold": 0.03076923076923077,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 3,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 7.262749108380452,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.2,
+              "evaluation_far": 0.0057692307692307696,
+              "evaluation_frr": 0.2923076923076923,
+              "evaluation_tar": 0.7076923076923077,
+              "unknown_accept_rate": 0.12857142857142856
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 6.370862383357581,
+              "calibration_far": 0.0,
+              "calibration_frr": 0.3230769230769231,
+              "evaluation_far": 0.0,
+              "evaluation_frr": 0.4307692307692308,
+              "evaluation_tar": 0.5692307692307692,
+              "unknown_accept_rate": 0.014285714285714285
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.041666666666666664,
+            "calibration_eer_threshold": 8.019170775003321,
+            "evaluation_far_at_calibration_eer_threshold": 0.028846153846153848,
+            "evaluation_frr_at_calibration_eer_threshold": 0.09230769230769231,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 4,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 7.274859990552149,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.15384615384615385,
+              "evaluation_far": 0.01282051282051282,
+              "evaluation_frr": 0.23076923076923078,
+              "evaluation_tar": 0.7692307692307693,
+              "unknown_accept_rate": 0.2357142857142857
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 6.5928259544995065,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.23076923076923078,
+              "evaluation_far": 0.001282051282051282,
+              "evaluation_frr": 0.38461538461538464,
+              "evaluation_tar": 0.6153846153846154,
+              "unknown_accept_rate": 0.06428571428571428
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.06923076923076923,
+            "calibration_eer_threshold": 8.449776390762958,
+            "evaluation_far_at_calibration_eer_threshold": 0.06794871794871794,
+            "evaluation_frr_at_calibration_eer_threshold": 0.06153846153846154,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        }
+      ],
+      "mean": {
+        "operating_points": [
+          {
+            "rule": "calibration_far",
+            "target": 0.01,
+            "threshold": 7.40558152933454,
+            "calibration_far": 0.009615384615384616,
+            "calibration_frr": 0.17538461538461542,
+            "evaluation_far": 0.012051282051282053,
+            "evaluation_frr": 0.24923076923076928,
+            "evaluation_tar": 0.7507692307692307,
+            "unknown_accept_rate": 0.18857142857142856
+          },
+          {
+            "rule": "calibration_far",
+            "target": 0.001,
+            "threshold": 6.619151569030782,
+            "calibration_far": 0.0005128205128205128,
+            "calibration_frr": 0.2892307692307693,
+            "evaluation_far": 0.0014102564102564104,
+            "evaluation_frr": 0.4092307692307693,
+            "evaluation_tar": 0.5907692307692307,
+            "unknown_accept_rate": 0.03857142857142857
+          }
+        ],
+        "eer_interpolation_check": {
+          "calibration_eer_interpolated": 0.06948717948717949,
+          "calibration_eer_threshold": 8.594794958801499,
+          "evaluation_far_at_calibration_eer_threshold": 0.07948717948717948,
+          "evaluation_frr_at_calibration_eer_threshold": 0.08923076923076924
+        }
+      },
+      "std": {
+        "operating_points": [
+          {
+            "rule": "calibration_far",
+            "target": 0.01,
+            "threshold": 0.1842536606190007,
+            "calibration_far": 0.0,
+            "calibration_frr": 0.0621127053482657,
+            "evaluation_far": 0.007724292477636958,
+            "evaluation_frr": 0.08023633729480184,
+            "evaluation_tar": 0.08023633729480184,
+            "unknown_accept_rate": 0.04912499675442686
+          },
+          {
+            "rule": "calibration_far",
+            "target": 0.001,
+            "threshold": 0.3189812653571544,
+            "calibration_far": 0.0002866753817307423,
+            "calibration_frr": 0.07874759318196756,
+            "evaluation_far": 0.0021452821193181427,
+            "evaluation_frr": 0.031902217466658035,
+            "evaluation_tar": 0.03190221746665803,
+            "unknown_accept_rate": 0.029709477632979174
+          }
+        ],
+        "eer_interpolation_check": {
+          "calibration_eer_interpolated": 0.019572812860887193,
+          "calibration_eer_threshold": 0.4398510811236301,
+          "evaluation_far_at_calibration_eer_threshold": 0.03486672757300619,
+          "evaluation_frr_at_calibration_eer_threshold": 0.07410212048487566
+        }
+      }
+    },
+    "map_b": {
+      "per_partition": [
+        {
+          "partition_seed": 0,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 0.9037456136787658,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.0057692307692307696,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.05
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 0.8134470028773721,
+              "calibration_far": 0.0,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.000641025641025641,
+              "evaluation_frr": 0.015384615384615385,
+              "evaluation_tar": 0.9846153846153847,
+              "unknown_accept_rate": 0.0
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.0,
+            "calibration_eer_threshold": 0.692787651439777,
+            "evaluation_far_at_calibration_eer_threshold": 0.0,
+            "evaluation_frr_at_calibration_eer_threshold": 0.03076923076923077,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 1,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 0.9462636257079667,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.010256410256410256,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.2357142857142857
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 0.904770169677878,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.00641025641025641,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.1357142857142857
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.0,
+            "calibration_eer_threshold": 0.6658992364736989,
+            "evaluation_far_at_calibration_eer_threshold": 0.0,
+            "evaluation_frr_at_calibration_eer_threshold": 0.015384615384615385,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 2,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 0.9759411605352091,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.01730769230769231,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.18571428571428572
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 0.9036404491700872,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.015384615384615385,
+              "evaluation_far": 0.005128205128205128,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.007142857142857143
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.000641025641025641,
+            "calibration_eer_threshold": 0.9049993254238743,
+            "evaluation_far_at_calibration_eer_threshold": 0.005128205128205128,
+            "evaluation_frr_at_calibration_eer_threshold": 0.0,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 3,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 0.8963086728184757,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.003205128205128205,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.007142857142857143
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 0.8118899091011529,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.0,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.0
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.0,
+            "calibration_eer_threshold": 0.7070152873344824,
+            "evaluation_far_at_calibration_eer_threshold": 0.0,
+            "evaluation_frr_at_calibration_eer_threshold": 0.03076923076923077,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        },
+        {
+          "partition_seed": 4,
+          "n_calibration_identities": 13,
+          "n_evaluation_identities": 13,
+          "n_unknown_identities": 14,
+          "n_calibration_genuine": 65,
+          "n_calibration_impostor": 1560,
+          "n_evaluation_genuine": 65,
+          "n_evaluation_impostor": 1560,
+          "n_unknown_probes": 140,
+          "operating_points": [
+            {
+              "rule": "calibration_far",
+              "target": 0.01,
+              "threshold": 0.9266263224543737,
+              "calibration_far": 0.009615384615384616,
+              "calibration_frr": 0.0,
+              "evaluation_far": 0.0019230769230769232,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.12857142857142856
+            },
+            {
+              "rule": "calibration_far",
+              "target": 0.001,
+              "threshold": 0.811072819998973,
+              "calibration_far": 0.000641025641025641,
+              "calibration_frr": 0.015384615384615385,
+              "evaluation_far": 0.0,
+              "evaluation_frr": 0.0,
+              "evaluation_tar": 1.0,
+              "unknown_accept_rate": 0.0
+            }
+          ],
+          "eer_interpolation_check": {
+            "calibration_eer_interpolated": 0.004487179487179487,
+            "calibration_eer_threshold": 0.8876987089115834,
+            "evaluation_far_at_calibration_eer_threshold": 0.0,
+            "evaluation_frr_at_calibration_eer_threshold": 0.0,
+            "note": "EER is interpolated between two observed thresholds. It is not a realisable operating point, and it is not expected to be reproduced on identity-disjoint held-out data."
+          }
+        }
+      ],
+      "mean": {
+        "operating_points": [
+          {
+            "rule": "calibration_far",
+            "target": 0.01,
+            "threshold": 0.9297770790389583,
+            "calibration_far": 0.009615384615384616,
+            "calibration_frr": 0.0,
+            "evaluation_far": 0.007692307692307693,
+            "evaluation_frr": 0.0,
+            "evaluation_tar": 1.0,
+            "unknown_accept_rate": 0.12142857142857141
+          },
+          {
+            "rule": "calibration_far",
+            "target": 0.001,
+            "threshold": 0.8489640701650927,
+            "calibration_far": 0.0005128205128205128,
+            "calibration_frr": 0.006153846153846154,
+            "evaluation_far": 0.002435897435897436,
+            "evaluation_frr": 0.003076923076923077,
+            "evaluation_tar": 0.9969230769230769,
+            "unknown_accept_rate": 0.02857142857142857
+          }
+        ],
+        "eer_interpolation_check": {
+          "calibration_eer_interpolated": 0.0010256410256410256,
+          "calibration_eer_threshold": 0.7716800419166833,
+          "evaluation_far_at_calibration_eer_threshold": 0.0010256410256410256,
+          "evaluation_frr_at_calibration_eer_threshold": 0.015384615384615385
+        }
+      },
+      "std": {
+        "operating_points": [
+          {
+            "rule": "calibration_far",
+            "target": 0.01,
+            "threshold": 0.03244467333883683,
+            "calibration_far": 0.0,
+            "calibration_frr": 0.0,
+            "evaluation_far": 0.006247945092826259,
+            "evaluation_frr": 0.0,
+            "evaluation_tar": 0.0,
+            "unknown_accept_rate": 0.09408528480228208
+          },
+          {
+            "rule": "calibration_far",
+            "target": 0.001,
+            "threshold": 0.05043691478073276,
+            "calibration_far": 0.0002866753817307423,
+            "calibration_frr": 0.008426500884694864,
+            "evaluation_far": 0.003087588353536486,
+            "evaluation_frr": 0.0068802091615378135,
+            "evaluation_tar": 0.00688020916153779,
+            "unknown_accept_rate": 0.0599744843705238
+          }
+        ],
+        "eer_interpolation_check": {
+          "calibration_eer_interpolated": 0.001954865472048321,
+          "calibration_eer_threshold": 0.11492332335806311,
+          "evaluation_far_at_calibration_eer_threshold": 0.0022934030538459384,
+          "evaluation_frr_at_calibration_eer_threshold": 0.015384615384615385
+        }
+      }
+    },
+    "comparison": {
+      "primary_calibration_far": 0.01,
+      "map_a": {
+        "calibration_far": 0.009615384615384616,
+        "evaluation_far": 0.012051282051282053,
+        "evaluation_frr": 0.24923076923076928,
+        "evaluation_tar": 0.7507692307692307,
+        "unknown_accept_rate": 0.18857142857142856
+      },
+      "map_b": {
+        "calibration_far": 0.009615384615384616,
+        "evaluation_far": 0.007692307692307693,
+        "evaluation_frr": 0.0,
+        "evaluation_tar": 1.0,
+        "unknown_accept_rate": 0.12142857142857141
+      },
+      "note": "Held-out identities are identity-disjoint from the calibration identities, but all folds come from the same 40-person Olivetti set; the 5 partition seeds reuse and overlap those identities and are NOT independent samples."
+    }
+  }
+}

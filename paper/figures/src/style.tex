@@ -1,0 +1,35 @@
+% Shared visual language for the paper's architecture diagrams.
+% Every fill differs in lightness, so the diagrams stay legible when printed
+% in grayscale; colour is only a redundant cue.
+\definecolor{ink}{HTML}{1B2A3A}
+\definecolor{navyfill}{HTML}{D5E0EC}
+\definecolor{navyedge}{HTML}{2F5D8A}
+\definecolor{tealfill}{HTML}{BFD8D5}
+\definecolor{tealedge}{HTML}{2A6F6C}
+\definecolor{amberfill}{HTML}{F1DCAE}
+\definecolor{amberedge}{HTML}{9C6512}
+\definecolor{greyfill}{HTML}{E5E7EB}
+\definecolor{greymid}{HTML}{8B939E}
+\definecolor{redfill}{HTML}{F0CBC5}
+\definecolor{rededge}{HTML}{9E3B32}
+
+\tikzset{
+  >={Stealth[length=2.0mm,width=1.5mm]},
+  every node/.style={font=\footnotesize, text=ink},
+  box/.style={draw=ink, line width=0.5pt, rounded corners=1.5pt,
+              fill=greyfill, align=center, inner sep=3pt, minimum height=7mm},
+  databox/.style={box, fill=amberfill, draw=amberedge},
+  procbox/.style={box, fill=navyfill, draw=navyedge},
+  repbox/.style={box, fill=tealfill, draw=tealedge},
+  evalbox/.style={box, fill=redfill, draw=rededge},
+  fadebox/.style={box, fill=white, draw=greymid, dashed},
+  arr/.style={->, draw=ink, line width=0.6pt},
+  darr/.style={->, draw=greymid, line width=0.6pt, dashed},
+  lbl/.style={font=\scriptsize, text=ink, inner sep=1pt, fill=white, fill opacity=0.85, text opacity=1},
+  note/.style={font=\scriptsize, text=ink, align=left, inner sep=1pt},
+  badge/.style={draw=rededge, fill=redfill, rounded corners=6pt,
+                font=\scriptsize\bfseries, text=rededge, inner sep=2.2pt},
+  badgefrz/.style={draw=tealedge, fill=tealfill, rounded corners=6pt,
+                font=\scriptsize\bfseries, text=tealedge, inner sep=2.2pt},
+  group/.style={draw=greymid, line width=0.5pt, rounded corners=3pt, inner sep=6pt},
+}

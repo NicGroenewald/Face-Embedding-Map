@@ -1,6 +1,36 @@
+# Python
 .idea/
 .DS_Store
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Caches and downloaded data (re-fetchable; not source)
+.cache/
+data/sklearn/
+# New webcam templates are sensitive biometric data; publish only by explicit choice.
+data/private-scans/
+# The historical templates too: biometric, local only, purged from history (data/README.md).
+data/scans/
+results/*.npz
+
+# LaTeX build artifacts (compiled diagrams and the paper PDF are tracked)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+paper/figures/src/*.pdf
+
+# Jupyter intermediates
+notebooks/*.nbconvert.ipynb
+.ipynb_checkpoints/
+
+# NOTE: docs/PLAN.md used to be ignored by mistake — it is the project plan and
+# must be tracked. data/scans.json and results/*.json are intentional source and
+# deliverables and are not ignored.

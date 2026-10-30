@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "face-embedding-map"
+version = "0.2.0"
+description = "Controlled comparison of raw-pixel Eigenfaces and frozen deep face embeddings, plus a webcam lighting study"
+requires-python = ">=3.12"
+authors = [{ name = "Nic Groenewald" }]
+# Runtime requirements for `pip install .`; requirements.txt records exact
+# experiment versions and also includes tests.
+dependencies = [
+  "numpy>=2.5.3",
+  "scipy>=1.18.1",
+  "scikit-learn>=1.9.1",
+  "torch>=2.14.0",
+  "facenet-pytorch>=2.5.3",
+  "opencv-python>=5.0.0.93",
+  "matplotlib>=3.11.2",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=9.1.1"]
+
+[tool.setuptools]
+packages = ["fem", "scripts"]
+
+[tool.pytest.ini_options]
+# Why: the test suite must be fast, offline and headless.  `tests/conftest.py`
+# sets MPLCONFIGDIR and the Agg backend; here we only pin discovery and keep
+# numerical warnings loud (a RuntimeWarning in this project usually means a
+# degenerate metric, e.g. correlation of a constant series).
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["error::RuntimeWarning"]

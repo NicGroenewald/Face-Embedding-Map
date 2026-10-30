@@ -1,0 +1,11 @@
+\section{Future work}\label{sec:future}
+
+\paragraph{Yale B.} Extended Yale Face Database B \citep{georghiades2001} sweeps lighting around the room for roughly 38 people at fixed pose. Re-running the two-map comparison there would test the prediction this paper can only sketch---raw pixels should cluster by lamp position, the embedding should remain identity-driven---with enough subjects to support a claim about people rather than one face.
+
+\paragraph{LFW and alignment.} Olivetti is the best case for raw pixels, so the comparison should be repeated on unconstrained data such as LFW \citep{huang2007}. An intermediate step is an MTCNN-augmented Olivetti ablation: Map A on detector-cropped rather than pre-aligned images, and Map B on both crops, separating alignment from representation.
+
+\paragraph{Training and representations.} The project plan reserved training for a final stage; it remains out of scope. Training a small embedding with triplet loss on Olivetti would show how much of the gap is available from the data at hand without a large pretrained corpus, and would require held-out identities. Repeating it with ArcFace \citep{deng2019} would test whether the conclusions are properties of deep embeddings generally or of this checkpoint.
+
+\paragraph{More subjects, strangers, sessions.} Several subjects, stranger images for impostor calibration, repeated sessions across days, and different sensors would turn the live study into a calibration experiment and let the security--convenience dial be set with data rather than described.
+
+\paragraph{Synthetic relighting.} Applying smooth illumination gradients to Olivetti images and re-embedding them would isolate direction from capture artefacts and connect the webcam observations to the illumination-cone literature.

@@ -1,0 +1,336 @@
+{
+  "common": {
+    "schema_version": 1,
+    "created": "2026-10-30T11:42:54Z",
+    "git_commit": "0ee74d4",
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0",
+      "facenet-pytorch": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "device": "mps",
+    "seed": 0,
+    "notes": [
+      "The Map A and Map B 2-D PCA plots are fitted on all 400 images, including future verification probes. This transductive fit affects the visualisations, not the headline metrics, which use unprojected full-dimensional vectors; it cannot establish that the Map B advantage is conservative.",
+      "All clustering/verification metrics are computed in full dimensionality (4096-d pixels / 512-d embeddings); the 2-D PCA scatters are for visualisation only and are never measured on.",
+      "confusion.both_wrong_same_choice_fraction is null because Map B's 1-NN accuracy is 100%: no image is misclassified by both maps, so the fraction has no denominator. Reported as null rather than 0.",
+      "512 components were requested, but 400 centred samples have rank <=399. A full-rank 399-component PCA preserves raw-pixel pairwise distances and therefore reproduces its metrics (up to numerical precision). This is an isometry sanity check, not a causal dimensionality ablation: both observed point clouds have sample rank <=399 and the model's pretraining, geometry and nominal widths remain confounded.",
+      "dataset.pixel_range is the dataset-wide range [0.0, 1.0] over all 400 images. The old Map A findings quote 0.083-0.876, which is the range of image 0 only; the dataset as a whole spans the full [0, 1] scale.",
+      "confusion.per_identity_accuracy_corr_pearson is null because one map's per-identity accuracy is constant (Map B is 100%), so Pearson correlation is undefined. Reported as null rather than 0."
+    ]
+  },
+  "dataset": {
+    "name": "Olivetti",
+    "n_images": 400,
+    "n_identities": 40,
+    "images_per_identity": 10,
+    "image_shape": [
+      64,
+      64
+    ],
+    "pixel_range": [
+      0.0,
+      1.0
+    ],
+    "aligned": "pre-aligned, tightly cropped (documented limitation)"
+  },
+  "map_a": {
+    "space": "raw pixels (4096-d)",
+    "variance_milestones": {
+      "25": 2,
+      "50": 4,
+      "75": 19,
+      "90": 66,
+      "95": null
+    },
+    "component0_evr": 0.23812729377932312,
+    "silhouette": 0.10557364029973872,
+    "knn_loo": {
+      "accuracy": 0.945,
+      "top5": 0.9825
+    },
+    "pairs": {
+      "genuine": {
+        "n": 1800,
+        "mean": 8.37771736759054,
+        "std": 2.5559274992735643,
+        "min": 1.9091356119956269,
+        "max": 22.641982256991163
+      },
+      "impostor": {
+        "n": 78000,
+        "mean": 12.414345343116963,
+        "std": 2.4498021652016617,
+        "min": 5.696844166948256,
+        "max": 24.82710237483886
+      }
+    },
+    "roc": {
+      "auc": 0.8807051282051283,
+      "eer": 0.20499999999999996,
+      "eer_threshold": 10.388071438876672,
+      "tar_at_far_1e-3": 0.2638888888888889,
+      "tar_at_far_1e-2": 0.42333333333333334,
+      "d_prime": 1.6124406928118002
+    },
+    "rank_correlation_2d": 0.807038027667095,
+    "seed_robustness": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "spearman_2d_vs_full": [
+        0.807038027667095,
+        0.807038027667095,
+        0.807038027667095
+      ],
+      "pairwise_2d_rank_corr": [
+        [
+          1.0,
+          0.9999999999998348,
+          0.9999999999997874
+        ],
+        [
+          0.9999999999998348,
+          1.0,
+          0.9999999999998583
+        ],
+        [
+          0.9999999999997874,
+          0.9999999999998583,
+          1.0
+        ]
+      ],
+      "note": "pairwise_2d_rank_corr is Spearman over the 2-D pairwise-distance vectors between seeds, invariant to meaningless axis sign flips/rotations. Full-dimensional metrics are deterministic and seed-independent."
+    },
+    "per_identity_knn_accuracy": [
+      0.6,
+      1.0,
+      0.9,
+      0.7,
+      0.9,
+      1.0,
+      1.0,
+      0.9,
+      0.9,
+      0.8,
+      1.0,
+      1.0,
+      0.8,
+      1.0,
+      1.0,
+      0.8,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.9,
+      0.8,
+      1.0,
+      1.0,
+      0.9,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.9,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "pc1_interpretation": "leading components are illumination gradients \u2014 component 0 a broad brightness gradient, component 1 left-right brightness (qualitative reading of the component images in figures/eigenfaces)",
+    "pca_axes_interpretation": {
+      "pc1_vs_mean_brightness_pearson": 0.9859749879923781,
+      "pc1_vs_mean_brightness_spearman": 0.9790186188663678,
+      "pc2_vs_lateral_brightness_pearson": 0.9444768662596575,
+      "note": "2-D PCA coordinates (seed 0) correlated with per-image pixel statistics on the 400 Olivetti images; PC1 tracks overall brightness, PC2 tracks the left-right illumination gradient."
+    }
+  },
+  "map_b": {
+    "space": "InceptionResnetV1 vggface2 (512-d unit)",
+    "variance_milestones": {
+      "25": 3,
+      "50": 7,
+      "75": 15,
+      "90": 24,
+      "95": 31
+    },
+    "component0_evr": 0.10891365872362166,
+    "silhouette": 0.49697996611998363,
+    "knn_loo": {
+      "accuracy": 1.0,
+      "top5": 1.0
+    },
+    "pairs": {
+      "genuine": {
+        "n": 1800,
+        "mean": 0.5283796717335253,
+        "std": 0.18595228487950113,
+        "min": 0.1233903232256598,
+        "max": 1.1861822501623582
+      },
+      "impostor": {
+        "n": 78000,
+        "mean": 1.333598976023059,
+        "std": 0.1324302537182559,
+        "min": 0.7329850425026402,
+        "max": 1.7167901013515936
+      }
+    },
+    "roc": {
+      "auc": 0.9995394301994303,
+      "eer": 0.011111111111111072,
+      "eer_threshold": 0.9973248800956942,
+      "tar_at_far_1e-3": 0.955,
+      "tar_at_far_1e-2": 0.9883333333333333,
+      "d_prime": 4.988196309974458
+    },
+    "rank_correlation_2d": 0.5174091465950228,
+    "seed_robustness": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "spearman_2d_vs_full": [
+        0.5174091465950228,
+        0.5174103559925257,
+        0.517410859167527
+      ],
+      "pairwise_2d_rank_corr": [
+        [
+          1.0,
+          0.9999999960795293,
+          0.9999999930567747
+        ],
+        [
+          0.9999999960795293,
+          1.0,
+          0.9999999973492393
+        ],
+        [
+          0.9999999930567747,
+          0.9999999973492393,
+          1.0
+        ]
+      ],
+      "note": "pairwise_2d_rank_corr is Spearman over the 2-D pairwise-distance vectors between seeds, invariant to meaningless axis sign flips/rotations. Full-dimensional metrics are deterministic and seed-independent."
+    },
+    "per_identity_knn_accuracy": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "pc1_interpretation": "not a pixel image; components are directions in embedding space",
+    "input_stats": {
+      "shape": [
+        400,
+        3,
+        160,
+        160
+      ],
+      "dtype": "torch.float32",
+      "min": -0.971150279045105,
+      "max": 0.9516398906707764,
+      "mean": 0.09371741861104965,
+      "channels_identical": true,
+      "reference_recipe_max_abs_diff": 0.0
+    }
+  },
+  "controls": {
+    "map_a_pca512": {
+      "space": "raw pixels projected to 399 PCA components",
+      "components": 399,
+      "requested_components": 512,
+      "variance_retained": 1.0,
+      "silhouette": 0.105573640299733,
+      "knn_loo": {
+        "accuracy": 0.945,
+        "top5": 0.9825
+      },
+      "pairs": {
+        "genuine": {
+          "n": 1800,
+          "mean": 8.377717367590614,
+          "std": 2.5559274992736,
+          "min": 1.9091356119941938,
+          "max": 22.641982256991547
+        },
+        "impostor": {
+          "n": 78000,
+          "mean": 12.414345343116983,
+          "std": 2.4498021652016533,
+          "min": 5.696844166949975,
+          "max": 24.827102374838823
+        }
+      },
+      "roc": {
+        "auc": 0.8807051282051283,
+        "eer": 0.20499999999999996,
+        "eer_threshold": 10.388071438876718,
+        "tar_at_far_1e-3": 0.2638888888888889,
+        "tar_at_far_1e-2": 0.42333333333333334,
+        "d_prime": 1.6124406928117692
+      },
+      "rank_correlation_2d": 0.807038027667095,
+      "max_abs_distance_diff_vs_raw": 3.468780818138839e-12,
+      "note": "512 components were requested, but 400 centred samples have rank <=399. A full-rank 399-component PCA preserves raw-pixel pairwise distances and therefore reproduces its metrics (up to numerical precision). This is an isometry sanity check, not a causal dimensionality ablation: both observed point clouds have sample rank <=399 and the model's pretraining, geometry and nominal widths remain confounded."
+    }
+  },
+  "confusion": {
+    "per_identity_accuracy_corr_pearson": null,
+    "same_prediction_fraction": 0.945,
+    "both_wrong_same_choice_fraction": null,
+    "same_prediction_count": 378,
+    "both_wrong_count": 0,
+    "n_images": 400
+  }
+}
