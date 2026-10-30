@@ -64,7 +64,7 @@ def load_olivetti(
     """
     # Imported here rather than at module scope: sklearn is already a hard
     # dependency of the project, but this keeps ``import fem.data`` cheap for
-    # the manifest-only paths (e.g. compare_embeddings.py never needs it).
+    # the manifest-only paths (e.g. scripts/compare_scans.py never needs it).
     from sklearn.datasets import fetch_olivetti_faces
 
     home = Path(data_home) if data_home is not None else OLIVETTI_HOME
@@ -211,7 +211,7 @@ class ScanSet:
 
 
 def _resolve_scan_path(file: str) -> Path:
-    """Manifest ``file`` entries are relative to ``saved-face-embeddings/``."""
+    """Manifest ``file`` entries are relative to ``data/scans/``."""
     path = Path(file)
     return path if path.is_absolute() else SCANS_DIR / path
 

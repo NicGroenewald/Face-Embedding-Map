@@ -8,7 +8,7 @@ and scripts. The build contract (experiments, JSON schemas, paper spec) is
 
 ## The one rule: don't build the pipeline twice
 
-`face-embedding-map.md` trap #4 says it plainly: *"Load → embed → squash → plot
+`docs/PLAN.md` trap #4 says it plainly: *"Load → embed → squash → plot
 → score. Only the embed step swaps. If I'm copy-pasting plotting code, stop and
 pull it into a function."* The codebase is organised around that:
 
@@ -60,8 +60,8 @@ Runners orchestrate; they must not re-implement `fem`.
 
 | script | role |
 |---|---|
-| `live.py` | webcam capture CLI: MTCNN on CPU, embedder on MPS, warm-up frames discarded, one detection per frame, metadata sidecar, argparse + HUD, never overwrites a scan |
-| `compare_embeddings.py` | human-readable distance report over the saved scans (jitter, repeat scans, intensity/direction effects, cosine equivalents) with PASS/FAIL self-checks and non-zero exit on failure |
+| `scripts/live_capture.py` | webcam capture CLI: MTCNN on CPU, embedder on MPS, warm-up frames discarded, one detection per frame, metadata sidecar, argparse + HUD, never overwrites a scan |
+| `scripts/compare_scans.py` | human-readable distance report over the saved scans (jitter, repeat scans, intensity/direction effects, cosine equivalents) with PASS/FAIL self-checks and non-zero exit on failure |
 
 ---
 
@@ -70,7 +70,7 @@ Runners orchestrate; they must not re-implement `fem`.
 ```
 data/sklearn/                 ignored cache: fetch_olivetti_faces(data_home=...)
 data/scans.json               tracked manifest for the 12 live scans (source of truth)
-saved-face-embeddings/*.npy   tracked raw live data, (10, 512) float32, unit-norm rows
+data/scans/*.npy   tracked raw live data, (10, 512) float32, unit-norm rows
 results/*.json                tracked experiment outputs (written by analysis/)
 results/embeddings_olivetti.npz   ignored cache (deterministic, regenerable)
 figures/*.png + *.pdf         tracked result figures (written by analysis/)
@@ -83,7 +83,7 @@ must fail loudly rather than produce plausible-looking wrong numbers.
 
 ### Adding a new live scan
 
-1. Capture: `python live.py --label flash_right_3 --intensity flash --direction right --repeat 3`
+1. Capture: `python scripts/live_capture.py --intensity flash --direction right --repeat 3 --intensity flash --direction right --repeat 3`
    (writes `<stamp>-flash_right_3.npy` + a `.json` sidecar).
 2. Add the sidecar's `name`/`file`/`intensity`/`direction`/`repeat` as an entry
    in `data/scans.json` (the script deliberately does not edit the manifest:
@@ -104,7 +104,7 @@ must fail loudly rather than produce plausible-looking wrong numbers.
 * **Same PCA settings everywhere.** `pca_map` is the only PCA; identical seeds
   for both maps. No `StandardScaler` (documented rejection: it amplifies
   near-constant background pixels).
-* **One detection per frame.** In `live.py` the box from `mtcnn.detect()` is
+* **One detection per frame.** In `scripts/live_capture.py` the box from `mtcnn.detect()` is
   reused for both the HUD rectangle and `mtcnn.extract()`; `mtcnn(rgb)` would
   detect a second time.
 * **Device split.** MTCNN runs on CPU (it cannot run on MPS on this machine);
@@ -144,8 +144,8 @@ Direct equivalents (from repo root):
 ```sh
 $PY -m pytest -q
 $PY analysis/run_olivetti.py
-$PY compare_embeddings.py
-$PY live.py --help
+$PY scripts/compare_scans.py
+$PY scripts/live_capture.py --help
 ```
 
 ---
@@ -162,8 +162,8 @@ a silent bug would corrupt the paper:
 | `test_data.py` | Olivetti shapes/labels, manifest integrity (12 scans × 10 frames, condition counts, unit norms), missing-file/unit-norm errors |
 | `test_preprocess.py` | exact `(x − 127.5)/128` values for 0/0.5/1, greyscale→RGB replication, shape/range validation |
 | `test_plotting.py` | every saver writes PNG at 200 dpi **and** a valid PDF; constant-series confusion panel does not emit NaN |
-| `test_live.py` | argument parsing, label sanitising, largest-box choice, warm-up discarding, sidecar contents, no-overwrite behaviour |
-| `test_compare_embeddings.py` | self-check semantics, report grouping, non-zero exit on missing data |
+| `test_live_capture.py` | argument parsing, label sanitising, largest-box choice, warm-up discarding, sidecar contents, no-overwrite behaviour |
+| `test_compare_scans.py` | self-check semantics, report grouping, non-zero exit on missing data |
 
 `tests/conftest.py` sets `MPLCONFIGDIR`, the Agg backend and `sys.path` before
 anything imports matplotlib.

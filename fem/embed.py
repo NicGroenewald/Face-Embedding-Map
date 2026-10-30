@@ -5,7 +5,7 @@ Why wrap it
 The project rule is "no training, nothing fits".  Every Map B number comes
 from this one checkpoint, so the model must be created in exactly one place:
 ``eval()`` mode, gradients off, output L2-normalised, and — on this Mac — the
-embedder on MPS (the detector stays on CPU; see ``live.py``).
+embedder on MPS (the detector stays on CPU; see ``scripts/live_capture.py``).
 
 ``InceptionResnetV1.forward`` already ends with ``F.normalize(..., p=2)`` in
 this version, so its 512-d outputs are unit vectors.  That is an invariant the

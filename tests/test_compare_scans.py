@@ -1,4 +1,4 @@
-"""Tests for ``compare_embeddings.py`` using synthetic scans.
+"""Tests for ``scripts/compare_scans.py`` using synthetic scans.
 
 The script is a reporting tool, but two parts are load-bearing for trust:
 the self-check that a vector has distance 0 from itself, and the exit code
@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import compare_embeddings as report
+from scripts import compare_scans as report
 from fem.data import Scan, ScanSet
 
 

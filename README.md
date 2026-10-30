@@ -115,7 +115,7 @@ What it shows, on the 0–2 Euclidean scale for unit vectors:
 - **Frames are not independent.** Distance grows with frame lag: 0.153 between consecutive frames,
   0.257 between the first and last frame of a scan. Small head/pose drift happens during the ~2 s
   capture, so ten frames are not ten independent samples. Frame 0 is an outlier (0.243 mean distance
-  vs 0.167 at frame 5) — which is why `live.py` now throws away warm-up frames.
+  vs 0.167 at frame 5) — which is why `scripts/live_capture.py` now throws away warm-up frames.
 - **Enrolment trick:** averaging the 10 frames of a scan before re-normalising reduces across-scan
   distances by only **4.8 %** — small, because distance is dominated by lighting, not sensor noise.
 
@@ -170,7 +170,7 @@ you feel the trade-off instead of reading about it:
 - **PCA was quietly non-deterministic.** scikit-learn picks the randomized SVD solver for this data,
   and the notebook left `random_state=None`: identical cells gave explained-variance ratios differing
   by up to 1.8×10⁻⁵. Fixed with `seed=0`.
-- **The pipeline existed twice.** `compare_embeddings.py` and the notebook each had their own data
+- **The pipeline existed twice.** `scripts/compare_scans.py` and the notebook each had their own data
   loading and distance code; a third copy was coming for Map B. Now one library (`fem/`) does each
   stage once.
 - **I forgot the webcam warms up.** The first frames are black (mean brightness 3/255), so early
@@ -186,7 +186,18 @@ you feel the trade-off instead of reading about it:
 ## Reproduce it
 
 Everything runs in the existing project virtualenv (`~/.venvs/nn-crew`; the versions are pinned in
-`requirements.txt`). Model weights and the Olivetti data are cached locally.
+`requirements.txt`). Model weights and the Olivetti data are cached locally. `make help` lists every
+target.
+
+```sh
+make test        # 61 pytest tests, offline, headless, < 60 s
+make all         # tests + all four experiment runners (~25 s; deterministic)
+make diagrams    # rebuild the paper's architecture diagrams from TikZ sources
+make paper       # compile paper/main.pdf (two passes)
+make notebook    # execute notebooks/01-map-a-raw-pixels.ipynb in place
+```
+
+The underlying commands, if you prefer running them directly:
 
 ```sh
 export MPLCONFIGDIR="$PWD/.cache/mpl"
@@ -202,37 +213,40 @@ cd paper && pdflatex -interaction=nonstopmode main.tex && \
             pdflatex -interaction=nonstopmode main.tex   # -> paper/main.pdf
 ```
 
-`make test`, `make maps`, `make live`, `make threshold`, `make paper` wrap the same commands.
 Every number that reaches the paper is written to `results/*.json` by one of those scripts — no
 hand-typed numbers anywhere.
 
-Live capture (needs a webcam and camera permission):
+Live capture (needs a webcam and camera permission; writes into `data/scans/`):
 
 ```sh
-$PY live.py --label flash-left --intensity flash --direction left --frames 10
+$PY scripts/live_capture.py --intensity flash --direction left --repeat 3 --frames 10
 ```
 
 ## Repository map
 
 ```
-fem/            the pipeline, one module per stage
-                data · preprocess · embed · maps · metrics · plotting · config
-analysis/       experiment runners; each writes results/*.json + figures/
-results/        machine-readable results (JSON) + cached embeddings (.npz)
-figures/        result figures, PNG (200 dpi) + vector PDF
-paper/          LaTeX paper, architecture diagrams, compiled main.pdf
+fem/            the library — one module per pipeline stage
+                config · data · preprocess · embed · maps · metrics · plotting
+analysis/       experiment runners (E1–E5); each writes results/*.json + figures/
+scripts/        live_capture.py (webcam CLI) · compare_scans.py (distance report)
+data/           scans.json manifest · scans/ (12 raw scans) · README · sklearn cache (ignored)
+results/        machine-readable results (JSON, source of truth) + caches (npz, ignored) + README
+figures/        result figures, PNG (200 dpi) + vector PDF, + README
+notebooks/      01-map-a-raw-pixels.ipynb (cleaned, drives fem)
+paper/          LaTeX paper, section sources, architecture diagrams, compiled main.pdf
+docs/           DESIGN · REVIEW · CODE · ROADMAP · PLAN · findings/
 tests/          pytest suite
-docs/           DESIGN.md (build contract), REVIEW.md (repo audit), CODE.md (code map)
-saved-face-embeddings/   12 webcam scans, 10×512 float32 each (the raw data)
-data/           scans.json manifest; sklearn cache (not tracked)
 ```
 
 ## Read more
 
-- **Paper:** [`paper/main.pdf`](paper/main.pdf)
-- **Live-study notes:** [`findings-live-embeddings.md`](findings-live-embeddings.md) (Observed / Means / So what)
-- **Map A notes:** [`Map A - Raw Pixels/findings.md`](Map%20A%20-%20Raw%20Pixels/findings.md)
-- **The original plan and its traps list:** [`face-embedding-map.md`](face-embedding-map.md)
+- **Paper:** [`paper/main.pdf`](paper/main.pdf) — 16 pages; method, diagrams, results, limitations.
+- **Live-study notes:** [`docs/findings/live-illumination.md`](docs/findings/live-illumination.md) (Observed / Means / So what)
+- **Map A notes:** [`docs/findings/map-a-raw-pixels.md`](docs/findings/map-a-raw-pixels.md)
+- **Notebook walkthrough:** [`notebooks/01-map-a-raw-pixels.ipynb`](notebooks/01-map-a-raw-pixels.ipynb)
+- **Next steps:** [`docs/ROADMAP.md`](docs/ROADMAP.md)
+- **How the code fits together:** [`docs/CODE.md`](docs/CODE.md)
+- **The original plan and its traps list:** [`docs/PLAN.md`](docs/PLAN.md)
 - **Why the repo looked the way it did / what was fixed:** [`docs/REVIEW.md`](docs/REVIEW.md)
 
 ## Limitations, plainly

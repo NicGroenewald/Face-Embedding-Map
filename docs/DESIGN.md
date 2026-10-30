@@ -3,6 +3,11 @@
 *Owner: Lead. Every teammate reads this before writing anything. If something here is wrong or
 impossible, message the Lead instead of silently diverging.*
 
+> **Historical note.** This document was the build contract written *before* the October 2026
+> rebuild. Some statements below describe the starting state ("Map B: not built yet", "95 % milestone
+> null"), which the build then resolved. For the finished state read `README.md`, `docs/CODE.md`,
+> `results/README.md` and `docs/ROADMAP.md`; §3 has been updated to the final repository layout.
+
 This document is the single source of truth for:
 
 1. what the project is trying to prove,
@@ -24,12 +29,12 @@ This document is the single source of truth for:
 The project already contains:
 
 - **Map A**: Eigenfaces — PCA on the 4096 raw pixel values of the Olivetti faces (400 photos,
-  40 people, 10 each). Notebook + findings exist (`Map A - Raw Pixels/`).
+  40 people, 10 each). Notebook + findings exist (`notebooks/`).
 - **Map B**: not built yet. InceptionResnetV1 pretrained on VGGFace2, frozen, evaluated on the same
   Olivetti faces → 512-d unit vectors, same PCA settings, same plots.
 - **Stage 5 live study**: 12 webcam scans of one person (the author) under six lighting conditions,
-  10 frames each, saved as `saved-face-embeddings/*.npy`. Existing findings document
-  (`findings-live-embeddings.md`).
+  10 frames each, saved as `data/scans/*.npy`. Existing findings document
+  (`docs/findings/live-illumination.md`).
 
 What is missing, and what this build adds:
 
@@ -71,7 +76,7 @@ export MPLCONFIGDIR="$PWD/.cache/mpl"
 
 - Olivetti faces: `data/sklearn/` (fetched with `fetch_olivetti_faces(data_home="data/sklearn")`).
 - VGGFace2 weights: `~/.cache/torch/checkpoints/20180402-114759-vggface2.pt` (read-only, works).
-- Live embeddings: `saved-face-embeddings/*.npy`, shape `(10, 512)` float32, **unit norm already**
+- Live embeddings: `data/scans/*.npy`, shape `(10, 512)` float32, **unit norm already**
   (facenet-pytorch L2-normalises its output).
 - MPS is available on this Mac. `torch.backends.mps.is_available() == True`.
 
@@ -91,61 +96,79 @@ for read-only caches.
 
 ---
 
-## 3. Target repository layout
+## 3. Repository layout (final)
 
 ```
 .
-├── README.md                     # front door: question, figures, headline numbers, how to run
-├── requirements.txt              # already exists, keep versions pinned
-├── pyproject.toml                # minimal: package metadata + pytest config
-├── Makefile                      # `make maps`, `make live`, `make paper`, `make test`
-├── conf.py / (no, keep it simple)
+├── README.md                     # front door: question, headline numbers, how to run, what I got wrong
+├── Makefile                      # make test | maps | live | threshold | arch | compare | diagrams | paper
+├── pyproject.toml                # package metadata (fem, scripts) + pytest config
+├── requirements.txt              # pinned runtime + test dependencies
+├── .gitignore / .gitattributes
 ├── fem/                          # the library — one module per pipeline stage
-│   ├── __init__.py
-│   ├── config.py
-│   ├── data.py
-│   ├── preprocess.py
-│   ├── embed.py
-│   ├── maps.py
-│   ├── metrics.py
-│   ├── plotting.py
-│   └── pipeline.py               # optional: end-to-end runners shared by analysis scripts
-├── analysis/
-│   ├── run_olivetti.py           # Map A vs Map B + metrics -> results/olivetti.json + figures
-│   ├── run_live.py               # lighting study -> results/live.json + figures
-│   ├── run_threshold.py          # open-set verification -> results/threshold.json + figure
-│   ├── model_arch.py             # dumps verified InceptionResnetV1 layer shapes -> results/model_arch.json
-│   └── make_figures.py           # optional: regenerate every result figure from cached data
-├── results/                      # JSON + npz artifacts (committed: small, text; npz maybe ignored)
-├── figures/                      # result figures, .png (200 dpi) AND .pdf, generated
-├── paper/
-│   ├── main.tex
-│   ├── sections/*.tex
-│   ├── figures/*.pdf             # architecture diagrams (TikZ/Graphviz, vector)
-│   ├── refs.tex (or thebibliography inline)
-│   └── main.pdf                  # compiled paper
-├── tests/                        # pytest; fast, no model download, no webcam
-│   ├── test_metrics.py
-│   ├── test_maps.py
-│   ├── test_data.py
-│   └── test_preprocess.py
-├── saved-face-embeddings/        # raw scan data (committed; ~240 KB)
-├── data/scans.json               # manifest: scan name -> file + condition metadata
+│   ├── config.py                 # paths, seed, constants
+│   ├── data.py                   # Olivetti loader; manifest-driven ScanSet loader
+│   ├── preprocess.py             # (x-127.5)/128 recipe shared with the MTCNN path
+│   ├── embed.py                  # frozen InceptionResnetV1 + cached embeddings
+│   ├── maps.py                   # PCA maps, eigenfaces, 2-D-vs-full rank correlation
+│   ├── metrics.py                # silhouette, k-NN, ROC, EER, TAR@FAR, threshold sweeps
+│   └── plotting.py               # every result figure (PNG 200 dpi + vector PDF)
+├── analysis/                     # experiment runners; each writes results/*.json + figures/
+│   ├── run_olivetti.py           # E1 + E2  (Map A vs Map B)
+│   ├── run_live.py               # E3       (webcam illumination study)
+│   ├── run_threshold.py          # E4       (open-set verification)
+│   ├── model_arch.py             # E5       (verified layer shapes)
+│   └── _common.py                # JSON header/provenance + numpy-safe serialisation
+├── scripts/                      # standalone command-line tools
+│   ├── live_capture.py           # webcam capture CLI (one detect/frame, metadata, never overwrites)
+│   └── compare_scans.py          # human-readable scan-distance report
+├── data/
+│   ├── scans.json                # scanned manifest: scan name -> file + condition metadata
+│   ├── scans/                    # 12 raw webcam scans, (10, 512) unit-norm float32
+│   ├── README.md                 # what is tracked vs cached
+│   └── sklearn/                  # IGNORED cache: fetch_olivetti_faces(data_home=...)
+├── results/
+│   ├── *.json                    # machine-readable results (source of truth for the paper)
+│   ├── *.npz                     # IGNORED deterministic caches (embeddings, map coords)
+│   └── README.md                 # schema + how to regenerate
+├── figures/
+│   ├── *.png / *.pdf             # result figures, generated from results
+│   └── README.md                 # name → producing script
+├── notebooks/
+│   └── 01-map-a-raw-pixels.ipynb # cleaned exploration notebook (drives fem; no duplicated pipeline)
 ├── docs/
-│   ├── DESIGN.md                 # this file
-│   ├── REVIEW.md                 # Lead's audit of the original repo
-│   └── CODE.md                   # core-dev's map of the library
-├── Map A - Raw Pixels/           # keep, cleaned notebook + corrected findings
-├── findings-live-embeddings.md   # rewritten with corrected + new numbers
-├── face-embedding-map.md         # the original plan, committed (currently gitignored by mistake)
-├── live.py                       # webcam capture CLI (refactored, bug-fixed)
-└── compare_embeddings.py         # small scan report CLI (refactored, manifest-driven)
+│   ├── DESIGN.md                 # this build contract
+│   ├── REVIEW.md                 # audit of the original repository
+│   ├── CODE.md                   # implementation map
+│   ├── ROADMAP.md                # prioritized next steps
+│   ├── PLAN.md                   # the original project plan + traps list
+│   └── findings/
+│       ├── live-illumination.md  # Stage 5 findings (Observed / Means / So what)
+│       └── map-a-raw-pixels.md   # Map A findings
+├── paper/
+│   ├── main.tex / main.pdf       # compiled research paper
+│   ├── sections/*.tex            # one file per section
+│   ├── refs.tex                  # verified bibliography
+│   └── figures/
+│       ├── fig_*.pdf             # architecture diagrams (TikZ)
+│       └── src/                  # diagram sources (style.tex + fig_*.tex)
+└── tests/                        # pytest; fast, offline, headless
+    ├── conftest.py
+    ├── test_{metrics,maps,data,preprocess,plotting}.py
+    └── test_{live_capture,compare_scans}.py
 ```
 
-Keep the README's tone: first person, plain language, no marketing. The repo is a learning project
-that should still be correct. Prefer clear code over clever code; docstrings explain *why*.
+Rules that keep it that way:
 
----
+- Root holds only the files a newcomer needs: README, build config, `.gitignore`, `.gitattributes`.
+  No scripts, no data, no findings at the root.
+- Exactly one implementation per pipeline stage, in `fem/`. Runners orchestrate, they never
+  re-implement. If a runner is about to write its own ROC curve or `plt.savefig`, it should call
+  `fem` instead.
+- `results/*.json` are source-of-truth deliverables; `results/*.npz`, `data/sklearn/` and `.cache/`
+  are regenerable caches and are ignored.
+- Paths are derived from `fem.config` (`ROOT` from `__file__`), never from the current working
+  directory, so `python analysis/run_live.py` works from anywhere.
 
 ## 4. `fem` API contract
 
@@ -159,7 +182,7 @@ ROOT: Path            # repo root, computed from __file__ (works when cwd != roo
 DATA_DIR: Path        # ROOT / "data"
 RESULTS_DIR: Path     # ROOT / "results"
 FIGURES_DIR: Path     # ROOT / "figures"
-SCANS_DIR: Path       # ROOT / "saved-face-embeddings"
+SCANS_DIR: Path       # ROOT / "data/scans"
 PAPER_DIR: Path       # ROOT / "paper"
 SEED: int = 0
 FACE_SIZE: int = 160          # model input resolution
@@ -591,13 +614,13 @@ captions in the LaTeX source (not baked into the image), and be referenced from 
 
 | owner | may write | must not touch |
 |---|---|---|
-| **core-dev** | `fem/**`, `tests/**`, `live.py`, `compare_embeddings.py`, `data/scans.json`, `pyproject.toml`, `Makefile`, `requirements.txt`, `.gitignore`, `docs/CODE.md`, `.cache/**` | `analysis/`, `results/`, `figures/`, `paper/`, `README.md`, findings docs, `docs/DESIGN.md` |
-| **lab** | `analysis/**`, `results/**`, `figures/**`, `findings-live-embeddings.md`, `Map A - Raw Pixels/findings.md`, notebook edits under `Map A - Raw Pixels/` | `fem/`, `tests/`, `live.py`, `compare_embeddings.py`, `paper/`, `README.md` |
+| **core-dev** | `fem/**`, `tests/**`, `scripts/live_capture.py`, `scripts/compare_scans.py`, `data/scans.json`, `pyproject.toml`, `Makefile`, `requirements.txt`, `.gitignore`, `docs/CODE.md`, `.cache/**` | `analysis/`, `results/`, `figures/`, `paper/`, `README.md`, findings docs, `docs/DESIGN.md` |
+| **lab** | `analysis/**`, `results/**`, `figures/**`, `docs/findings/live-illumination.md`, `docs/findings/map-a-raw-pixels.md`, notebook edits under `notebooks/` | `fem/`, `tests/`, `scripts/live_capture.py`, `scripts/compare_scans.py`, `paper/`, `README.md` |
 | **paper** | `paper/**` | everything else |
 | **lead** | `README.md`, `docs/DESIGN.md`, `docs/REVIEW.md`, git commits, final integration | team files, except to fix a blocker with the owner's knowledge |
 
 - **Only the Lead runs `git` write commands** (add/commit/tag/push). Teammates never commit.
-- Raw data files (`saved-face-embeddings/*.npy`, `data/`) are read-only for everyone except the
+- Raw data files (`data/scans/*.npy`, `data/`) are read-only for everyone except the
   Lead.
 - If you need a file outside your scope, message the owner or the Lead; do not edit it.
 - Report completion with the absolute paths you wrote and the commands you ran.

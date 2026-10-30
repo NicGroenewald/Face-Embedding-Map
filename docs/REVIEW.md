@@ -3,6 +3,12 @@
 *Audit date: 30 October 2026. Reviewer: Lead. Scope: the repository as it stood at commit
 `51e1f07` plus the uncommitted working tree (12 saved scans, notebook, findings drafts, scripts).*
 
+> **Path note.** This is a historical audit: paths such as `live.py`, `compare_embeddings.py`,
+> `saved-face-embeddings/`, `Map A - Raw Pixels/`, `findings-live-embeddings.md` and
+> `face-embedding-map.md` refer to the repository *as audited*, before the restructure. They now
+> live at `scripts/live_capture.py`, `scripts/compare_scans.py`, `data/scans/`, `docs/findings/`,
+> `docs/PLAN.md` and `notebooks/` — see `docs/DESIGN.md` §3 for the current layout.
+
 This document records what is wrong, why it matters, and what this build does about it. It is split
 into **science**, **code**, **documentation**, **reproducibility** and **git/repo hygiene**. Each
 finding has an evidence pointer and a status:

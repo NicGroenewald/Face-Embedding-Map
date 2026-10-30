@@ -13,7 +13,7 @@ Why no StandardScaler
 ---------------------
 All 4096 raw-pixel columns share one unit (brightness 0..1); per-column
 scaling only amplifies near-constant background pixels into noise.  This was
-tested and rejected in ``Map A - Raw Pixels/findings.md`` §4, so ``pca_map``
+tested and rejected in ``docs/findings/map-a-raw-pixels.md`` §4, so ``pca_map``
 fits PCA on centred raw data and nothing else.
 
 The same function is applied to Map A (4096-d pixels) and Map B (512-d

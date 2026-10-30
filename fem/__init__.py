@@ -6,7 +6,7 @@ One implementation of the project's pipeline:
 
 Why a package
 -------------
-The project's own rule (``face-embedding-map.md`` trap #4) is "don't build the
+The project's own rule (``docs/PLAN.md`` trap #4) is "don't build the
 pipeline twice".  Map A (raw pixels) and Map B (learned embeddings) differ
 only in the representation; loading, PCA, metrics and plotting are shared.
 ``analysis/`` runners orchestrate these modules; they do not re-implement
@@ -28,7 +28,7 @@ Import policy
 ``metrics``) are eager, while ``preprocess``, ``embed`` and ``plotting`` are
 loaded on first access.  That keeps ``import fem`` free of torch/matplotlib
 side effects, which matters for tests and for the manifest-only script
-``compare_embeddings.py``.
+``scripts/compare_scans.py``.
 """
 
 from __future__ import annotations

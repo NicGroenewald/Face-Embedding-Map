@@ -15,13 +15,18 @@ dist/
 data/sklearn/
 results/*.npz
 
-# LaTeX build artifacts
+# LaTeX build artifacts (compiled diagrams and the paper PDF are tracked)
 *.aux
 *.log
 *.out
 *.toc
 *.synctex.gz
+paper/figures/src/*.pdf
 
-# NOTE: face-embedding-map.md used to be ignored by mistake — it is the
-# project plan and must be tracked.  saved-face-embeddings/ and results/*.json
-# are also intentional source/deliverables and are not ignored.
+# Jupyter intermediates
+notebooks/*.nbconvert.ipynb
+.ipynb_checkpoints/
+
+# NOTE: docs/PLAN.md used to be ignored by mistake — it is the project plan and
+# must be tracked. data/scans/ and results/*.json are intentional source and
+# deliverables and are not ignored.

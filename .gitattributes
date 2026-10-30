@@ -1,0 +1,10 @@
+# Text: normalise line endings; binaries are storage, not diffs.
+* text=auto eol=lf
+
+*.npy binary
+*.pdf binary
+*.png binary
+*.pt binary
+
+# Notebooks are JSON but review as notebooks.
+*.ipynb text

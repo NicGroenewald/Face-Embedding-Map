@@ -33,7 +33,7 @@ you see is what gets embedded.
 Run it
 ------
     export MPLCONFIGDIR="$PWD/.cache/mpl"
-    /Users/nic/.venvs/nn-crew/bin/python live.py --label flash_left_3 \\
+    /Users/nic/.venvs/nn-crew/bin/python scripts/live_capture.py --label flash_left_3 \\
         --intensity flash --direction left --repeat 3
 
 Keys in the preview window: ``s`` = scan, ``q``/``Esc`` = quit.  ``--no-preview``
@@ -53,6 +53,13 @@ import json
 import re
 import sys
 from pathlib import Path
+
+# Allow `python scripts/live_capture.py` from the repo root (the script's own
+# directory is on sys.path, the repo root is not). Importing it as
+# `scripts.live_capture` is unaffected.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import cv2
 import numpy as np
@@ -108,7 +115,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--outdir",
         type=Path,
         default=SCANS_DIR,
-        help="output directory (default: saved-face-embeddings/)",
+        help="output directory (default: data/scans/)",
     )
     parser.add_argument("--camera", type=int, default=0, help="OpenCV camera index (default: 0)")
     parser.add_argument(

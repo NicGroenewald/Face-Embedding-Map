@@ -1,8 +1,8 @@
-"""Tests for ``live.py`` that do not need a webcam or an MPS device.
+"""Tests for ``scripts/live_capture.py`` that do not need a webcam or an MPS device.
 
 Why test a CLI
 --------------
-``live.py`` is the only code path that creates the raw data the live study is
+``scripts/live_capture.py`` is the only code path that creates the raw data the live study is
 built on.  Its metadata sidecar and "never overwrite" behaviour are easy to
 break and impossible to eyeball from a screenshot, so they are tested with
 fake cameras and temporary output directories.  The interactive loop itself is
@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 import torch
 
-import live
+from scripts import live_capture as live
 from fem.config import SCANS_DIR
 
 

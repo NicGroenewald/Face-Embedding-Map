@@ -12,7 +12,7 @@ authors = [{ name = "Nic Groenewald" }]
 # this file only declares the package surface and the test configuration.
 
 [tool.setuptools]
-packages = ["fem"]
+packages = ["fem", "scripts"]
 
 [tool.pytest.ini_options]
 # Why: the test suite must be fast, offline and headless.  `tests/conftest.py`

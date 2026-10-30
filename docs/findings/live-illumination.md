@@ -2,7 +2,7 @@
 
 *Rewritten against `results/live.json` (12 webcam scans, 6 Sep 2026, one subject). Every number
 below is a computed value from that file; the previous draft's 0.94 worst case is superseded by
-0.9671. Pipeline in `live.py`, analysis in `analysis/run_live.py`.*
+0.9671. Pipeline in `scripts/live_capture.py`, analysis in `analysis/run_live.py`.*
 
 Pipeline: webcam frame → MTCNN detect and crop (CPU) → InceptionResnetV1 pretrained on VGGFace2
 (MPS) → 512-number unit vector. Ten frames per scan, saved as a `(10, 512)` matrix. Distance is
@@ -144,7 +144,7 @@ not expect it to fix the worst lighting mismatch.
 is the clear outlier, consistent with camera warm-up.
 
 **So what:** Ten frames are not ten independent samples; the effective sample size is below 10, so
-"n = 10 frames" overstates the evidence. Discard the first frames (the refactored `live.py` does),
+"n = 10 frames" overstates the evidence. Discard the first frames (the refactored `scripts/live_capture.py` does),
 and do not treat within-scan maxima as independent draws.
 
 ---

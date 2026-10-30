@@ -22,7 +22,7 @@ the numbers can be read on the conventional 0..1 cosine scale too.
 Usage
 -----
     export MPLCONFIGDIR="$PWD/.cache/mpl"
-    /Users/nic/.venvs/nn-crew/bin/python compare_embeddings.py
+    /Users/nic/.venvs/nn-crew/bin/python scripts/compare_scans.py
 
 Exit status is 1 if the data cannot be loaded or the self-check fails.
 """
@@ -31,6 +31,14 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
+
+# Allow `python scripts/compare_scans.py` from the repo root (the script's own
+# directory is on sys.path, the repo root is not). Importing it as
+# `scripts.compare_scans` is unaffected.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import numpy as np
 
@@ -242,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         scan_set = load_scans(args.manifest)
     except (FileNotFoundError, ValueError) as error:
-        print(f"[compare_embeddings] cannot load scans: {error}", file=sys.stderr)
+        print(f"[compare_scans] cannot load scans: {error}", file=sys.stderr)
         return 1
 
     return build_report(scan_set)

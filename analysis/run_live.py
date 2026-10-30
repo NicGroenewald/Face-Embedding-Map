@@ -9,7 +9,7 @@ dataset answers cheaply: how much does an embedding move when *nothing* changed
 (direction)?  The ratio direction/noise is the headline "lighting direction costs
 N x frame jitter".
 
-The data already exists as saved-face-embeddings/*.npy (unit vectors, MTCNN-cropped);
+The data already exists as data/scans/*.npy (unit vectors, MTCNN-cropped);
 no model re-run is needed.  ``fem.data.load_scans()`` reads the manifest that records
 which file is which condition.
 

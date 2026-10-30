@@ -77,8 +77,8 @@ comparison changes the representation and nothing else.
 
 ## 5. The 2-D scatter is a plot, not a measurement
 
-**Observed:** The 2-D PCA scatter of all 400 points is now in `figures/mapA_scatter` (and in the
-notebook). Its Spearman correlation with the full-dimensional pairwise distances is 0.8070. For
+**Observed:** The 2-D PCA scatter of all 400 points is now in `figures/mapA_scatter` (and in
+`notebooks/01-map-a-raw-pixels.ipynb`). Its Spearman correlation with the full-dimensional pairwise distances is 0.8070. For
 comparison, Map B's 2-D scatter preserves less: 0.5174. Re-running the projection with PCA seeds
 0, 1 and 2 gives 0.8070 every time, and the rank correlation between the three 2-D geometries is
 1.0 — the picture does not move.
@@ -167,7 +167,8 @@ representation, not about dimensionality. Recorded in `results/olivetti.json` un
 
 ## 10. What is now done from the old "still to do" list
 
-- The 2-D scatter of all 400 points coloured by person exists (`figures/mapA_scatter`, notebook).
+- The 2-D scatter of all 400 points coloured by person exists (`figures/mapA_scatter`,
+  `notebooks/01-map-a-raw-pixels.ipynb`).
 - Silhouette, 1-NN, ROC/EER and the genuine/impostor comparison are computed in full dimensionality
   (section 6), not on the 2-D plot.
 - The plotting code is a shared `fem.plotting` function, so Map B reuses identical settings
