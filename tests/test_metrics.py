@@ -161,6 +161,83 @@ def test_tar_at_far_uses_conservative_empirical_threshold():
         metrics.tar_at_far(genuine, impostor, 1.5)
 
 
+def test_conservative_far_threshold_handles_tied_impostor_scores():
+    # Sorted impostors with a three-way tie at 0.1; FAR target 0.4 allows two
+    # accepted impostors, but accepting at 0.1 would accept four (FAR 0.8).
+    # The conservative threshold therefore steps to the previous observed
+    # score (0.0), whose FAR (0.2) is within budget.
+    impostor = np.array([0.0, 0.1, 0.1, 0.1, 0.2])
+    genuine = np.array([0.0, 0.05])
+
+    threshold = metrics.threshold_at_far(genuine, impostor, 0.4)
+    assert threshold == pytest.approx(0.0)
+
+    far, _frr = metrics.far_frr_at_threshold(genuine, impostor, threshold)
+    assert far == pytest.approx(0.2)
+    assert far <= 0.4
+
+    # The naive k-th-smallest threshold would violate the FAR budget...
+    naive_far, _ = metrics.far_frr_at_threshold(genuine, impostor, 0.1)
+    assert naive_far == pytest.approx(0.8)
+    assert naive_far > 0.4
+    # ...and the conservative TAR only accepts the 0.0 genuine probe.
+    assert metrics.tar_at_far(genuine, impostor, 0.4) == pytest.approx(0.5)
+
+
+def test_threshold_at_far_matches_tar_at_far_and_respects_budget():
+    rng = np.random.default_rng(0)
+    genuine = rng.normal(1.0, 0.5, 200)
+    impostor = np.sort(rng.normal(3.0, 0.5, 2000))
+
+    for far in (0.001, 0.01, 0.05, 0.1, 0.5, 0.9):
+        threshold = metrics.threshold_at_far(genuine, impostor, far)
+        observed_far, _ = metrics.far_frr_at_threshold(genuine, impostor, threshold)
+        assert observed_far <= far + 1e-12
+        assert metrics.tar_at_far(genuine, impostor, far) == pytest.approx(
+            float(np.mean(genuine <= threshold))
+        )
+        # Two-argument form (impostor scores only) gives the same threshold.
+        assert metrics.threshold_at_far(impostor, far) == pytest.approx(threshold)
+
+    # Boundaries: no impostor accepted at FAR 0, all accepted at FAR 1.
+    assert metrics.threshold_at_far(genuine, impostor, 0.0) < impostor.min()
+    assert metrics.threshold_at_far(genuine, impostor, 1.0) == np.inf
+    with pytest.raises(ValueError):
+        metrics.threshold_at_far(genuine, impostor, -0.1)
+    with pytest.raises(TypeError):
+        metrics.threshold_at_far(impostor, np.ones(3))  # ambiguous two-argument call
+
+
+def test_threshold_at_far_without_ties_uses_kth_smallest():
+    impostor = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+    threshold = metrics.threshold_at_far(np.array([0.15]), impostor, 0.4)
+    assert threshold == pytest.approx(0.2)  # 2 of 5 accepted -> FAR exactly 0.4
+    far, _frr = metrics.far_frr_at_threshold(np.array([0.15]), impostor, threshold)
+    assert far == pytest.approx(0.4)
+
+
+def test_threshold_at_far_handles_float_budget_boundary():
+    # 0.3 * 10 is 2.9999999999999996 in float; 3 of 10 accepted is exactly the
+    # 0.3 target, so the threshold should be the 3rd score, not the 2nd.
+    impostor = np.arange(1.0, 11.0)
+    threshold = metrics.threshold_at_far(np.array([0.5]), impostor, 0.3)
+    assert threshold == pytest.approx(3.0)
+    far, _frr = metrics.far_frr_at_threshold(np.array([0.5]), impostor, threshold)
+    assert far == pytest.approx(0.3)
+
+
+def test_threshold_at_far_matches_requested_unique_score_semantics():
+    # Cases pinned with the analysis owner so the two consumers cannot drift.
+    # impostor=[1,1,2,2], far=0.25: both unique scores exceed the budget
+    # (FAR(1)=0.5), so the threshold falls below min.
+    threshold = metrics.threshold_at_far(np.array([0.5]), np.array([1.0, 1.0, 2.0, 2.0]), 0.25)
+    assert threshold < 1.0
+    # impostor=[1,2,3,4]: 1 of 4 (FAR 0.25) accepts at 1; 2 of 4 (FAR 0.5)
+    # accepts at 2.
+    assert metrics.threshold_at_far(np.array([0.5]), np.array([1.0, 2.0, 3.0, 4.0]), 0.25) == 1.0
+    assert metrics.threshold_at_far(np.array([0.5]), np.array([1.0, 2.0, 3.0, 4.0]), 0.5) == 2.0
+
+
 def test_threshold_sweep_arrays_and_monotonicity():
     genuine = np.array([1.0, 2.0, 3.0])
     impostor = np.array([2.0, 3.0, 4.0])

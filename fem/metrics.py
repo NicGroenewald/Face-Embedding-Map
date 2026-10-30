@@ -18,14 +18,16 @@ Conventions
     - FRR = fraction of genuine trials with distance  > threshold,
     - ROC-AUC = P(genuine distance < impostor distance) with ties counted 1/2.
 * ``eer`` interpolates the first FAR/FRR crossing on the exact threshold grid;
-  ``tar_at_far`` uses the conservative empirical threshold (the largest
-  threshold whose measured FAR does not exceed the target).
+  ``threshold_at_far`` returns the conservative empirical threshold for a FAR
+  target (tie-safe: never exceeds the observed FAR budget) and ``tar_at_far``
+  is the TAR at that same threshold.
 * EER, FAR and FRR are fractions in [0, 1], not percentages.
 """
 
 from __future__ import annotations
 
 from collections import Counter
+from typing import overload
 
 import numpy as np
 from sklearn.metrics import pairwise_distances as _sklearn_pairwise_distances
@@ -250,30 +252,117 @@ def _far_frr_at(
     return far, frr
 
 
+def _conservative_threshold_at_far(impostor_sorted: np.ndarray, far: float) -> float:
+    """Largest *observed* impostor score whose empirical FAR is at most ``far``.
+
+    Candidate thresholds are the unique impostor scores themselves, so the
+    returned value is always a score the calibration sample actually produced.
+    With tied impostor scores, accepting "the ``floor(far * n)`` closest
+    impostors" is not the same as using the ``floor(far * n)``-th smallest
+    distance: the tie group would push the observed FAR above the target.  In
+    that case the threshold steps down to the previous smaller unique score.
+    If no observed score satisfies the budget (only possible when a tie makes
+    FAR jump from 0 past the target), the result is just below ``min(impostor)``
+    so observed FAR is 0.  ``far >= 1`` returns ``+inf`` (accept everything).
+
+    ``impostor_sorted`` must be sorted ascending and finite (``_as_sorted``).
+    """
+    n_impostor = impostor_sorted.size
+    if far >= 1.0:
+        return float(np.inf)
+    if far <= 0.0:
+        return float(np.nextafter(impostor_sorted[0], -np.inf))
+
+    # Tolerance so a mathematically integral budget (e.g. 0.1 * 10) is not
+    # truncated by float representation; capped at n-1 while far < 1 so the
+    # observed FAR can never exceed the target by rounding.
+    allowed = min(int(np.floor(far * n_impostor + 1e-12)), n_impostor - 1)
+    if allowed <= 0:
+        return float(np.nextafter(impostor_sorted[0], -np.inf))
+
+    candidate_index = allowed - 1
+    candidate = float(impostor_sorted[candidate_index])
+    accepted = int(np.searchsorted(impostor_sorted, candidate, side="right"))
+    if accepted <= allowed:
+        return candidate
+
+    # Ties at the candidate would accept more impostors than the budget allows;
+    # step down to the previous smaller observed score (FAR 0 if none exists).
+    first_occurrence = int(np.searchsorted(impostor_sorted, candidate, side="left"))
+    if first_occurrence == 0:
+        return float(np.nextafter(impostor_sorted[0], -np.inf))
+    return float(impostor_sorted[first_occurrence - 1])
+
+
+@overload
+def threshold_at_far(genuine: np.ndarray, impostor: np.ndarray, far: float) -> float: ...
+
+
+@overload
+def threshold_at_far(impostor: np.ndarray, far: float) -> float: ...
+
+
+def threshold_at_far(genuine, impostor, far=None) -> float:
+    """Conservative decision threshold at a target false-acceptance rate.
+
+    Returns the largest **observed impostor score** for which the empirical
+    FAR (accept iff ``distance <= threshold``) does not exceed ``far``.  Ties
+    are handled by stepping to the previous smaller unique score when
+    accepting the tied value would overshoot the FAR budget (see
+    ``_conservative_threshold_at_far``).  ``far <= 0`` returns just below
+    ``min(impostor)`` (observed FAR 0); ``far >= 1`` returns ``+inf``.
+
+    Two call forms are supported:
+
+    * ``threshold_at_far(impostor, far)`` — only impostor scores are needed to
+      choose the threshold, which is the natural form for calibration splits;
+    * ``threshold_at_far(genuine, impostor, far)`` — symmetric with
+      ``tar_at_far`` / ``threshold_at_frr``, where ``genuine`` is validated but
+      does not affect the result.
+
+    Semantics match the conservative rule ``tar_at_far`` uses, so
+    ``tar_at_far(g, i, far) == mean(g <= threshold_at_far(g, i, far))``
+    (up to the tie conservatism documented there).
+    """
+    if far is None:
+        # Two-argument form: (impostor_scores, far).
+        if np.ndim(impostor) != 0:
+            raise TypeError(
+                "two-argument form is threshold_at_far(impostor_scores, far); "
+                "for the symmetric form pass three arguments: "
+                "threshold_at_far(genuine, impostor, far)"
+            )
+        genuine_scores = None
+        impostor_scores = genuine
+        far = float(impostor)
+    else:
+        genuine_scores = genuine
+        impostor_scores = impostor
+
+    if not 0.0 <= far <= 1.0:
+        raise ValueError(f"far must be a fraction in [0, 1], got {far}")
+    if far >= 1.0:
+        return float("inf")
+    if genuine_scores is not None:
+        _as_sorted(genuine_scores, "genuine")
+    impostor_sorted = _as_sorted(impostor_scores, "impostor")
+    return _conservative_threshold_at_far(impostor_sorted, far)
+
+
 def tar_at_far(genuine: np.ndarray, impostor: np.ndarray, far: float) -> float:
     """True acceptance rate at a target false-acceptance rate.
 
-    Uses the *conservative* empirical threshold: the largest threshold for
-    which the observed impostor acceptance fraction does not exceed ``far``.
-    This is why the reported TAR can be slightly pessimistic rather than
-    optimistic, which is the safe direction for a security claim.
+    Uses the *conservative* empirical threshold from ``threshold_at_far``: the
+    largest observed impostor score whose acceptance fraction does not exceed
+    ``far``.  This is why the reported TAR can be slightly pessimistic rather
+    than optimistic, which is the safe direction for a security claim.
     """
     if not 0.0 <= far <= 1.0:
         raise ValueError(f"far must be a fraction in [0, 1], got {far}")
     genuine_sorted = _as_sorted(genuine, "genuine")
     impostor_sorted = _as_sorted(impostor, "impostor")
 
-    if far <= 0.0:
-        threshold = np.nextafter(impostor_sorted[0], -np.inf)
-    elif far >= 1.0:
-        threshold = np.inf
-    else:
-        accepted = int(np.floor(far * impostor_sorted.size))
-        threshold = (
-            impostor_sorted[accepted - 1]
-            if accepted > 0
-            else np.nextafter(impostor_sorted[0], -np.inf)
-        )
+    threshold = _conservative_threshold_at_far(impostor_sorted, far)
     return float(np.mean(genuine_sorted <= threshold))
 
 

@@ -2,20 +2,26 @@
 
 Why this script exists
 ----------------------
-Stage 5 of the plan is the "FaceID bit" done on a real face: the same person, one
-camera, six lighting conditions repeated twice.  It answers questions no controlled
-dataset answers cheaply: how much does an embedding move when *nothing* changed
-(frame jitter), when the light gets brighter (intensity), and when the light moves
-(direction)?  The ratio direction/noise is the headline "lighting direction costs
-N x frame jitter".
+Stage 5 of the plan, done on a real face: the same person, one camera, six
+lighting conditions, two repeats each.  This is an *observational, single-subject*
+study of a **fixed historical 12-scan protocol**; it measures how far an embedding
+moves when nothing changed (frame jitter), when the light was brighter (intensity),
+and when the light came from a different direction.  The ratio direction/noise is
+a descriptive "lighting direction costs N x frame jitter".
+
+It cannot attribute differences to a single cause: brightness, direction and any
+incidental change in pose or position were not independently manipulated, and the
+scans were captured once.  Language here is deliberately non-causal.  The 12 scans
+are a fixed design; new captures stay private and are not picked up automatically
+without a redesign (and a schema change for a larger matrix).
 
 The data already exists as data/scans/*.npy (unit vectors, MTCNN-cropped);
 no model re-run is needed.  ``fem.data.load_scans()`` reads the manifest that records
 which file is which condition.
 
-Two extra measurements are included because they bound how much the 10 frames can be
-trusted: temporal autocorrelation (frame_lag) and a first-frame outlier check
-(frame_outlier) — both feed the limitation "frames are not independent samples".
+Two extra measurements describe how much the 10 frames can be trusted: temporal
+autocorrelation (frame_lag) and a first-frame outlier check (frame_outlier) — both
+feed the limitation that frames are not independent samples.
 
 Run: ``$PY analysis/run_live.py``
 Outputs: results/live.json;
@@ -58,7 +64,10 @@ DIRECTION_PAIRS = [
     ("left", "bottom"),
     ("right", "bottom"),
 ]
-CROSS_DOMAIN_CAVEAT = "different capture/crop/resolution; upper bound only"
+CROSS_DOMAIN_CAVEAT = (
+    "different capture/crop/resolution; not a calibrated impostor distribution, and "
+    "neither an upper nor a lower bound on webcam-domain stranger distance"
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -89,17 +98,29 @@ def _condition(scan) -> str:
 
 
 def _ordered_scans(scan_set) -> tuple[list, list[int]]:
-    """Index the 12 scans into condition-then-repeat order, verified against the design.
+    """Index the fixed historical 12 scans into condition-then-repeat order.
+
+    Fixed design: exactly 12 scans and exactly 2 repeats per condition.  A
+    manifest with extra scans is rejected loudly rather than silently mixed into
+    the historical analysis — new captures require a deliberate redesign (and a
+    schema change for a larger matrix), which this script does not do.
 
     ``Scan`` carries no repeat field (DESIGN §4), so repeats are ordered by name,
     which the manifest fixes as '<condition>_<repeat>'.
     """
     scans = list(scan_set.scans)
-    assert len(scans) == N_SCANS, f"expected {N_SCANS} scans, got {len(scans)}"
+    if len(scans) != N_SCANS:
+        raise ValueError(
+            f"fixed historical protocol expects exactly {N_SCANS} scans, got {len(scans)}; "
+            "new captures are not picked up automatically and require a redesign"
+        )
     ordered = []
     for condition in CONDITION_ORDER:
         group = [s for s in scans if _condition(s) == condition]
-        assert len(group) == 2, f"expected 2 scans for {condition}, got {len(group)}"
+        if len(group) != 2:
+            raise ValueError(
+                f"fixed historical protocol expects 2 scans for {condition}, got {len(group)}"
+            )
         ordered.extend(sorted(group, key=lambda s: s.name))
     return ordered, [scans.index(s) for s in ordered]
 
@@ -114,28 +135,15 @@ def _frame_pair_values(a: np.ndarray, b: np.ndarray, fem_metrics, within: bool =
 
 
 def _load_olivetti_embeddings() -> np.ndarray:
-    """Load the cached (400,512) Olivetti embeddings written by run_olivetti.py (E2).
+    """Read only the validated Olivetti cache from the same model/data recipe.
 
-    The cross-domain check needs the *same frozen model* on Olivetti; re-running the
-    model here would be slow and could silently diverge.  If the cache is missing the
-    check is impossible and we fail loudly rather than fabricating a number.
+    A numeric `(400, 512)` array alone is not sufficient: the shared loader
+    checks checkpoint, dataset, preprocessing and row integrity, and gives an
+    actionable `make maps` message if the cache is absent or stale.
     """
-    path = RESULTS_DIR / "embeddings_olivetti.npz"
-    if not path.exists():
-        raise FileNotFoundError(
-            f"{path} is missing: run analysis/run_olivetti.py first (E2 caches it)."
-        )
-    with np.load(path) as npz:
-        candidates = {
-            key: npz[key]
-            for key in npz.files
-            if npz[key].shape == (400, 512) and np.issubdtype(npz[key].dtype, np.number)
-        }
-    if not candidates:
-        raise KeyError(f"no (400,512) array found in {path}; keys={list(np.load(path).files)}")
-    # Deterministic if several matches: prefer the obviously named one.
-    key = "embeddings" if "embeddings" in candidates else sorted(candidates)[0]
-    return np.asarray(candidates[key], dtype=np.float64)
+    from fem.embed import load_cached_olivetti_embeddings
+
+    return np.asarray(load_cached_olivetti_embeddings(), dtype=np.float64)
 
 
 # --------------------------------------------------------------------------- #
@@ -199,7 +207,7 @@ def main() -> dict:
     print("[live] same-condition between-scan means: " +
           ", ".join(f"{s['condition']}={s['mean']:.3f}" for s in same_condition))
 
-    # ---------------- 3. intensity effect (front light only) ----------------
+    # ---------------- 3. observational brightness comparison (front light only) ----------------
     room_front = [k for k, c in enumerate(conditions) if c == "room/front"]
     flash_front = [k for k, c in enumerate(conditions) if c == "flash/front"]
     intensity_values = np.concatenate(
@@ -208,13 +216,16 @@ def main() -> dict:
     intensity_effect = {
         "condition_pair": ["room/front", "flash/front"],
         **_stats(intensity_values),
-        "note": f"mean {intensity_values.mean():.3f} vs within-scan noise floor "
-                f"{noise_floor_mean:.3f} and same-condition between-scan means "
+        "note": f"observational comparison: mean {intensity_values.mean():.3f} sits within "
+                f"the same-condition between-scan means "
                 f"{min(s['mean'] for s in same_condition):.3f}-"
-                f"{max(s['mean'] for s in same_condition):.3f}: brightness adds nothing "
-                f"beyond repeat-scan variation",
+                f"{max(s['mean'] for s in same_condition):.3f} (within-scan jitter mean "
+                f"{noise_floor_mean:.3f}). Room-front and flash-front were captured in "
+                f"separate scans, so this design cannot attribute any difference to "
+                f"brightness alone and makes no causal claim.",
     }
-    print(f"[live] intensity effect (room front vs flash front): mean {intensity_values.mean():.4f}")
+    print(f"[live] observational brightness comparison (room front vs flash front): "
+          f"mean {intensity_values.mean():.4f}")
 
     # ---------------- 4. direction effect (flash only, six pairs) ----------------
     direction_pairs = []
@@ -341,7 +352,8 @@ def main() -> dict:
         f"were {raw_mean_norms.min():.4f}..{raw_mean_norms.max():.4f} "
         f"(mean {raw_mean_norms.mean():.4f}), so pooling barely changes direction.",
         "The cross-domain check is domain-confounded by capture, crop and resolution; it "
-        "is an upper bound on stranger distance, not an impostor distribution.",
+        "is not a calibrated impostor distribution and is neither an upper nor a lower "
+        "bound on webcam-domain stranger distance.",
         "design is unbalanced by necessity: room light has front+left only; flash has "
         "front/left/right/bottom; two repeats per condition; one subject.",
     ]

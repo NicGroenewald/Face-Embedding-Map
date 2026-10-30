@@ -12,7 +12,7 @@
 \begin{scope}
   \node[font=\small\bfseries, anchor=south] at (3.3,5.75) {Webcam path (MTCNN + crop)};
   \node[databox, text width=3.4cm] (frame) at (3.3,4.80)
-    {webcam frame\\[-1pt] \scriptsize BGR, unknown pose and scale};
+    {webcam frame\\[-1pt] \scriptsize BGR$\to$RGB, uint8, unknown pose/scale};
 
   % MTCNN cascade container
   \node[procbox, text width=1.15cm, minimum height=9mm] (pnet) at (1.50,3.40)
@@ -28,9 +28,9 @@
   \draw[arr] (rnet) -- (onet);
 
   \node[procbox, text width=3.6cm] (crop) at (3.3,1.95)
-    {face box + square crop 160$\times$160\\[-1pt] \scriptsize 5 landmarks also returned};
+    {face box + square crop 160$\times$160\\[-1pt] \scriptsize PIL uint8 crop, resized; 5 landmarks returned};
   \node[procbox, text width=3.6cm] (std) at (3.3,0.55)
-    {standardise\\[-1pt] \scriptsize $\times 255$ then $(x-127.5)/128$};
+    {standardise\\[-1pt] \scriptsize to $[0,1]$, then $(x\cdot255-127.5)/128$};
   \node[repbox, text width=3.6cm] (tensorA) at (3.3,-0.85)
     {model input\\[-1pt] \scriptsize $(3,160,160)$ float32};
 
@@ -63,7 +63,7 @@
 % =================================================================== SHARED END
 \node[evalbox, text width=11.8cm, minimum height=9mm] (shared) at (7.15,-2.35)
   {same input domain $\rightarrow$ same frozen InceptionResnetV1 $\rightarrow$ 512-d unit vector\\[-1pt]
-   \scriptsize the $(x-127.5)/128$ standardisation must match between the two paths};
+   \scriptsize both paths standardise the same 0--255 intensity scale with the same $(x-127.5)/128$ mapping};
 
 \draw[arr] (tensorA.south) -- (tensorA.south |- shared.north);
 \draw[arr] (tensorB.south) -- (tensorB.south |- shared.north);

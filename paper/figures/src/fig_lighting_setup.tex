@@ -40,13 +40,13 @@
 % ---------------------------------------------------------------- room row
 \node[font=\scriptsize\bfseries, text=ink, anchor=east] at (0.25,3.30) {room light};
 \head{1.80}{3.30}
-  \lamp{1.80,4.55}
-  \draw[arr] (1.80,4.30) -- (1.80,3.80);
-  \node[font=\scriptsize, anchor=north] at (1.80,2.60) {room/front};
+  \lamp{1.80,2.00}
+  \draw[arr] (1.80,2.28) -- (1.80,2.80);
+  \node[font=\scriptsize, anchor=north] at (1.80,1.70) {room/front (camera side)};
 
 \head{5.40}{3.30}
-  \lamp{6.60,4.40}
-  \draw[arr] (6.35,4.18) -- (5.85,3.65);
+  \lamp{4.20,4.40}
+  \draw[arr] (4.45,4.18) -- (4.95,3.65);
   \node[font=\scriptsize, anchor=north] at (5.40,2.60) {room/left};
 \nocapture{9.00}{3.30}
 \nocapture{12.60}{3.30}
@@ -57,7 +57,7 @@
 \head{1.80}{0.55}
   \phone{1.80,-0.75}
   \draw[arr] (1.80,-0.50) -- (1.80,0.05);
-  \node[font=\scriptsize, anchor=north] at (1.80,-0.95) {flash/front};
+  \node[font=\scriptsize, anchor=north] at (1.80,-0.95) {flash/front (camera side)};
 
 \head{5.40}{0.55}
   \phone{4.10,0.55}
@@ -70,9 +70,9 @@
   \node[font=\scriptsize, anchor=north] at (9.00,-0.20) {flash/right};
 
 \head{12.60}{0.55}
-  \phone{12.60,-0.95}
-  \draw[arr] (12.60,-0.70) -- (12.60,-0.05);
-  \node[font=\scriptsize, anchor=north] at (12.60,-1.15) {flash/bottom};
+  \phone{12.30,-1.00}
+  \draw[arr] (12.42,-0.78) -- (12.55,-0.05);
+  \node[font=\scriptsize, anchor=north] at (12.60,-1.20) {flash/bottom (under-chin)};
 
 % ---------------------------------------------------------------- source legend
 \lamp{13.55,4.85}
@@ -84,7 +84,8 @@
 \node[note, anchor=north west, text width=8.4cm] at (0.05,-1.95)
   {\textbf{12 scans} $=$ six conditions $\times$ two repeats; \textbf{10 frames} per scan;
    one subject; captured 6 September 2026. Room light was only available from the front and left,
-   so the design is unbalanced by necessity.};
+   so the design is unbalanced by necessity. Schematic only: left/right use a viewer/camera-frame convention and actual lamp
+   positions were not recorded; front is drawn on the camera/phone side, bottom under-chin.};
 \node[note, anchor=north west, text width=5.6cm] at (8.85,-1.95)
   {Each condition contributes a $(10,512)$ matrix of unit-norm embeddings. Two repeats per
    condition provide the between-scan reference; frames within a scan are consecutive webcam

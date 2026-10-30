@@ -62,8 +62,12 @@ number above is me vs me"), but the consequence is larger than the doc admits: *
 can be set from this data at all**. A threshold drawn from genuine distances alone is guaranteed to
 accept the user; whether it accepts a stranger is unmeasured.
 
-**Fixed partly:** the open-set verification experiment (E4) is run on Olivetti, a controlled dataset
-with 40 identities, and gives a real FAR/FRR/EER comparison between Map A and Map B. The live study
+**Fixed partly:** the verification experiment (E4) is run on Olivetti, a controlled dataset with 40
+identities, and gives a FAR/FRR/EER comparison between Map A and Map B. *Correction (later
+review):* E4 is known-population (closed-set) cross-identity verification, not open-set: every
+impostor is one of the 40 enrolled identities, and its thresholds are chosen on the same scores they
+are evaluated on. An identity-disjoint calibration/held-out check was added in
+`results/threshold.json → calibration_heldout_evaluation`. The live study
 is kept as a *within-identity variability* experiment. The paper must state that the two are not
 the same measurement and must not transpose an Olivetti threshold onto a webcam.
 
@@ -77,8 +81,9 @@ found so far".
 
 Recomputed over all 12 scans × 100 frame pairs, the maximum is **0.967** (flash right repeat 2 vs
 flash bottom repeat 2); the right-repeat-1 vs bottom-repeat-2 pair is 0.947. The doc understates the
-worst case by ~0.03 and, more importantly, understates the threshold consequence: *any threshold
-below 0.967 rejects the enrolled user on his own data*.
+worst case by ~0.03 and, more importantly, understates the threshold consequence: in this observed
+pair, a frame-level threshold below 0.967 would have rejected the enrolled user's own sample (a
+description of the captured pairs, not a validated deployment bound).
 
 **Fixed:** all numbers in the rewritten findings and paper come from `results/live.json`.
 
@@ -146,12 +151,15 @@ control or a reviewer will (fairly) object.
 
 **Fixed:** `results/olivetti.json → controls.map_a_pca512` reruns the identical metrics on Map A
 reduced to 512 PCA components. Rank-based metrics (1-NN, ROC-AUC, EER) are also reported because
-they are less sensitive to this.
+they are less sensitive to this. *Correction (later review):* 400 centred samples have rank ≤ 399,
+so the control is a full-rank 399-component projection that preserves distances exactly. It is an
+isometry sanity check, not a matched-dimensionality ablation, and does not explain the gap.
 
 ### 1.8 Map A is fit on the probe data (minor, disclosed)
 
 PCA for Map A is fit on all 400 images, including the images later used as probes. That is
-transductive and cannot hurt Map A. Since Map B is fully frozen, any Map B advantage is therefore
+transductive for the 2-D plots. *Correction (later review):* the recognition metrics use the
+original full-dimensional pixels, not PCA coordinates, so this fit does not make the Map B advantage
 conservative. This is not an error — the plan explicitly says "no train/test split" — but it must be
 stated in the paper (it is now recorded in `results/olivetti.json → notes`).
 

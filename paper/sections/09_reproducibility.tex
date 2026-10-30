@@ -1,17 +1,19 @@
 \section{Reproducibility}\label{sec:repro}
 
-All experiments ran on an Apple M5 Pro (18 cores, 48\,GB unified memory) under macOS 27.2 (arm64), Python 3.12.14, NumPy 2.5.3, scikit-learn 1.9.1, PyTorch 2.14.0, \texttt{facenet-pytorch} 2.5.3, and Matplotlib 3.11.2. The embedder runs on Apple MPS; MTCNN runs on CPU because its operations are unsupported by MPS. No training runs or cloud GPUs were used. Every experiment uses seed 0 unless a protocol averages seeds 0--4, and every sklearn estimator receives \texttt{random\_state=0}. The CNN is deterministic in evaluation mode, and its Olivetti embeddings are cached. Results are written to JSON by the analysis scripts; the paper's numbers are read from those files, and each results file records the git commit, Python and package versions, device, and seed.
+All experiments ran on an Apple M5 Pro (18 cores, 48\,GB unified memory) under macOS 27.2 (arm64), Python 3.12.14, NumPy 2.5.3, scikit-learn 1.9.1, PyTorch 2.14.0, \texttt{facenet-pytorch} 2.5.3, and Matplotlib 3.11.2. The embedder runs on Apple MPS; MTCNN runs on CPU because its operations are unsupported by MPS. No training runs or cloud GPUs were used. Every experiment uses seed 0 unless a protocol averages seeds 0--4, and every sklearn estimator receives \texttt{random\_state=0}. The CNN is deterministic in evaluation mode, and its Olivetti embeddings are cached. Results are written to JSON by the analysis scripts. The numerical tables and prose were transcribed by hand from those files into LaTeX, not generated from JSON; they must be reviewed against the JSON whenever results are regenerated. Each results file records the git commit, Python and package versions, device, and seed.
 
-The pipeline is:
+From the source checkout, a portable entry point is:
 \begin{verbatim}
-export MPLCONFIGDIR="$PWD/.cache/mpl"
-PY=/Users/nic/.venvs/nn-crew/bin/python
-$PY analysis/run_olivetti.py   # maps, metrics, model arch
-$PY analysis/run_live.py       # webcam study
-$PY analysis/run_threshold.py  # open-set verification
-$PY analysis/model_arch.py     # layer shapes and param counts
-$PY -m pytest -q               # fast tests, no network/webcam
-cd paper && pdflatex -interaction=nonstopmode main.tex
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip install -e . --no-deps
+make all          # tests, maps, live, verification, architecture
+make diagrams     # TikZ figure sources -> vector PDFs
+make paper        # two LaTeX passes
 \end{verbatim}
+The exact experiment environment and cached model checkpoint are not bundled with an installed
+wheel; installed users may set \texttt{FEM\_PROJECT\_ROOT} to a source checkout for data paths.
+The initial fetch of Olivetti faces or model weights may require network access.
 
-The checkpoint is \texttt{20180402-114759-\allowbreak vggface2.pt}, cached locally (111,898,327 bytes; SHA-256 begins \texttt{281cebca\allowbreak 8662831a\allowbreak 987a874b\allowbreak dcb36e73}). Its measured layer shapes and parameter counts are in \texttt{results/model\_arch.json}; Figure~\ref{fig:model} is generated from those measurements. Olivetti Faces is public and ships with scikit-learn. The webcam embeddings, results JSON files, and figure-generation code are in the project repository; raw webcam frames were not retained. The analysis code is a library (\texttt{fem/}) plus experiment runners (\texttt{analysis/}), so the comparison re-runs without duplicating preprocessing or metrics. Small numerical differences between BLAS implementations are possible.
+The checkpoint is \texttt{20180402-114759-\allowbreak vggface2.pt}, cached locally (111,898,327 bytes; SHA-256 begins \texttt{281cebca\allowbreak 8662831a\allowbreak 987a874b\allowbreak dcb36e73}). Its measured layer shapes and parameter counts are in \texttt{results/model\_arch.json}; Figure~\ref{fig:model} is manually drawn from those measurements and must be checked against them after changes. Olivetti Faces is fetched through scikit-learn's loader and cached locally; the dataset is not bundled with this repository. The webcam embeddings, results JSON files, and figure-generation code are in the project repository; raw webcam frames were not retained. The analysis code is a library (\texttt{fem/}) plus experiment runners (\texttt{analysis/}), so the comparison re-runs without duplicating preprocessing or metrics. Small numerical differences between BLAS implementations are possible.

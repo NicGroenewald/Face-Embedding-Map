@@ -8,8 +8,20 @@ version = "0.2.0"
 description = "Controlled comparison of raw-pixel Eigenfaces and frozen deep face embeddings, plus a webcam lighting study"
 requires-python = ">=3.12"
 authors = [{ name = "Nic Groenewald" }]
-# Exact runtime pins live in requirements.txt, which the paper cites verbatim;
-# this file only declares the package surface and the test configuration.
+# Runtime requirements for `pip install .`; requirements.txt records exact
+# experiment versions and also includes tests.
+dependencies = [
+  "numpy>=2.5.3",
+  "scipy>=1.18.1",
+  "scikit-learn>=1.9.1",
+  "torch>=2.14.0",
+  "facenet-pytorch>=2.5.3",
+  "opencv-python>=5.0.0.93",
+  "matplotlib>=3.11.2",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=9.1.1"]
 
 [tool.setuptools]
 packages = ["fem", "scripts"]

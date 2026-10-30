@@ -12,15 +12,18 @@ Nothing in here imports numpy/torch, so it is safe to import from anywhere.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
-# ``config.py`` lives in ``<repo>/fem/config.py``: one parent up is the repo.
-ROOT: Path = Path(__file__).resolve().parent.parent
+# Source checkout by default. Installed wheels do not bundle datasets/results;
+# point FEM_PROJECT_ROOT at a checkout to use the default data paths from one.
+ROOT: Path = Path(os.environ.get("FEM_PROJECT_ROOT", str(Path(__file__).resolve().parent.parent))).expanduser().resolve()
 
 DATA_DIR: Path = ROOT / "data"
 RESULTS_DIR: Path = ROOT / "results"
 FIGURES_DIR: Path = ROOT / "figures"
-SCANS_DIR: Path = DATA_DIR / "scans"   # tracked raw scans (see data/README.md)
+SCANS_DIR: Path = DATA_DIR / "scans"   # tracked historical study scans
+PRIVATE_SCANS_DIR: Path = DATA_DIR / "private-scans"  # ignored new captures; explicit consent to publish
 PAPER_DIR: Path = ROOT / "paper"
 CACHE_DIR: Path = ROOT / ".cache"
 DOCS_DIR: Path = ROOT / "docs"

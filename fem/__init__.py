@@ -46,6 +46,7 @@ from .config import (
     IMAGES_PER_IDENTITY,
     LIVE_SCANS,
     PAPER_DIR,
+    PRIVATE_SCANS_DIR,
     RESULTS_DIR,
     ROOT,
     SCANS_DIR,
@@ -53,7 +54,7 @@ from .config import (
     ensure_dirs,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 #: Submodules whose imports are heavy (torch / matplotlib) and therefore lazy.
 _LAZY_MODULES = frozenset({"preprocess", "embed", "plotting"})
@@ -65,6 +66,7 @@ __all__ = [
     "RESULTS_DIR",
     "FIGURES_DIR",
     "SCANS_DIR",
+    "PRIVATE_SCANS_DIR",
     "PAPER_DIR",
     "SEED",
     "FACE_SIZE",

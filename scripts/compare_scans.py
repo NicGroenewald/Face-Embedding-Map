@@ -22,7 +22,7 @@ the numbers can be read on the conventional 0..1 cosine scale too.
 Usage
 -----
     export MPLCONFIGDIR="$PWD/.cache/mpl"
-    /Users/nic/.venvs/nn-crew/bin/python scripts/compare_scans.py
+    python scripts/compare_scans.py   # from an environment with requirements.txt installed
 
 Exit status is 1 if the data cannot be loaded or the self-check fails.
 """

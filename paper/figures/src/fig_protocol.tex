@@ -26,19 +26,20 @@
   {The same split is used for Map A and Map B. Primary result: mean over five seeded
    splits (0--4); a fixed first-half/second-half split is kept only as a session-bias check.
    The pair-level analysis in the main text uses a different protocol (all unordered pairs),
-   so its AUC is not directly comparable with the operating points below.};
+   so its AUC is not directly comparable with the operating points below. All identities are
+   known and enrolled; there are no unknown-identity probes.};
 
 % ============================================================= (b) trials
 \node[font=\small\bfseries, anchor=south west] at (7.55,7.55) {(b) Trials and decision};
-\node[procbox, text width=5.3cm] (gen) at (11.30,6.35)
-  {\textbf{genuine trial}\\[-1pt] \scriptsize probe of $p$ against the enrolled template of $p$};
-\node[databox, text width=5.3cm] (imp) at (11.30,5.10)
-  {\textbf{impostor trial}\\[-1pt] \scriptsize probe of $p$ against every image of the other 39 identities};
-\node[procbox, text width=5.3cm] (dec) at (11.30,3.90)
-  {\textbf{score and decision}\\[-1pt] \scriptsize $s = d(\text{probe},\text{reference})$; accept iff $d \le \tau$};
+\node[procbox, text width=3.3cm] (gen) at (9.35,6.30)
+  {\textbf{genuine trial}\\[-1pt] \scriptsize each held-out probe of $p$, scored by its minimum distance to $p$'s five enrolment images};
+\node[databox, text width=3.3cm] (imp) at (13.25,6.30)
+  {\textbf{impostor trial}\\[-1pt] \scriptsize each image of the other 39 identities, scored by its minimum distance to $p$'s five enrolment images};
+\node[procbox, text width=5.3cm] (dec) at (11.30,4.55)
+  {\textbf{score and decision}\\[-1pt] \scriptsize $s = \min_{e \in \mathrm{enrol}} d(\text{query}, e)$; accept iff $s \le \tau$};
 
-\draw[arr] (gen.south) -- (dec.north);
-\draw[arr] (imp.south) -- (dec.north);
+\draw[arr] (gen.south) -- (gen.south |- dec.north);
+\draw[arr] (imp.south) -- (imp.south |- dec.north);
 
 % ============================================================= (c) distributions
 \begin{scope}[shift={(0.65,-3.30)}]
@@ -83,14 +84,14 @@
   \node[font=\scriptsize, text=ink, anchor=west] at (2.55,2.10) {FAR = FRR};
 
   % threshold direction along the curve
-  \node[font=\scriptsize, text=ink, anchor=west] at (3.05,4.15) {looser $\tau$};
-  \draw[->, draw=ink, line width=0.4pt] (3.35,3.95) to[out=160,in=20] (2.45,3.55);
+  \node[font=\scriptsize, text=ink, anchor=west] at (2.95,4.30) {looser $\tau$};
+  \draw[->, draw=ink, line width=0.4pt] (2.45,3.55) to[out=20,in=160] (3.35,3.95);
   \node[font=\scriptsize, text=ink, anchor=west] at (0.15,1.75) {tighter $\tau$};
   \draw[->, draw=ink, line width=0.4pt] (0.95,1.65) to[out=200,in=120] (0.55,1.05);
 
   \node[note, anchor=north west, text width=4.6cm] at (-0.55,-0.55)
-    {As $\tau$ decreases the system accepts more: FAR rises and FRR falls. The EER is the
-     operating point where the two error rates are equal.};
+    {As $\tau$ increases the system accepts more: FAR rises and FRR falls; lowering $\tau$ is
+     tighter. The EER is the operating point where the two error rates are equal.};
 \end{scope}
 
 \end{tikzpicture}

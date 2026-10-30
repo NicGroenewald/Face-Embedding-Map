@@ -9,13 +9,12 @@ the 2-D PCA scatters; the numbers are computed in **full dimensionality** only
 plot is for eyes — measuring on it would be measuring plotting settings (plan trap
 #3).
 
-It also runs a matched-dimensionality control (``controls.map_a_pca512``): PCA on
-the raw pixels down to 512 components, then identical metrics.  The 4096-d and
-512-d spaces differ in *nominal* dimension, so distance statistics might not be
-comparable; the control exists so the paper can say whether Map B's win is a
-dimensionality artefact.  One honest wrinkle the numbers reveal: 400 centred
-samples span at most rank 399, so the raw-pixel space has no 512 dimensions to
-begin with — the control records that instead of inventing components.
+It also runs a full-rank PCA *isometry sanity check* (historical JSON key
+``controls.map_a_pca512``): 400 centred examples span at most 399 dimensions,
+so the requested 512-component pixel PCA cannot exist.  Projection onto all
+399 observable components preserves pairwise distances; agreeing metrics
+validate the arithmetic, but do not isolate feature count, intrinsic geometry,
+architecture or pretraining as causes of the gap.
 
 Everything numeric is delegated to ``fem`` (PCA, metrics) — this file only wires
 the protocol and writes results/olivetti.json in the DESIGN.md §6 schema.
@@ -190,9 +189,10 @@ def main() -> dict:
 
     results: dict = {}
     notes = [
-        "Map A PCA is fit on all 400 images, including the images later used as "
-        "probes. If anything this favours Map A (it sees the probes during fitting), "
-        "so a Map B win is conservative. Recorded as a methodological caveat.",
+        "The Map A and Map B 2-D PCA plots are fitted on all 400 images, including "
+        "future verification probes. This transductive fit affects the visualisations, "
+        "not the headline metrics, which use unprojected full-dimensional vectors; "
+        "it cannot establish that the Map B advantage is conservative.",
         "All clustering/verification metrics are computed in full dimensionality "
         "(4096-d pixels / 512-d embeddings); the 2-D PCA scatters are for "
         "visualisation only and are never measured on.",
@@ -257,7 +257,7 @@ def main() -> dict:
     )
 
     # ---------------- matched-dimensionality control ----------------
-    control = _matched_dimensionality_control(
+    control = _full_rank_isometry_check(
         X_a, labels, metrics_a, fem_maps, fem_metrics
     )
     print(
@@ -449,18 +449,15 @@ def _verify_model_input(model_input, images: np.ndarray) -> dict:
     return stats
 
 
-def _matched_dimensionality_control(
+def _full_rank_isometry_check(
     X_a: np.ndarray, labels: np.ndarray, metrics_a: dict, maps_mod, metrics_mod
 ) -> dict:
-    """Map A projected to as many PCs as Map B has dimensions, same metrics.
+    """Verify that full-rank pixel PCA preserves Euclidean distances.
 
-    Requested: 512 components.  Actual limit: 400 centred samples span rank <= 399,
-    so no 512-dimensional PCA of this dataset exists (sklearn would also reject
-    n_components=512 > min(n_samples, n_features)=400).  Projecting onto the top 399
-    components is therefore the *full-rank* projection: it preserves Euclidean
-    distances exactly, which is itself the cleanest possible answer to "is Map B's
-    win a dimensionality artefact?" — the control metrics should equal Map A's up to
-    randomised-SVD numerical error.  Recorded, not hidden.
+    Requested 512 components are impossible for 400 centred samples (rank <=399).
+    Keeping all 399 observable components is an orthogonal isometry, so the
+    output should reproduce raw-pixel metrics numerically. This sanity check
+    does not control for dimensionality or identify why Map B wins.
     """
     rank_limit = N_IMAGES - 1  # 400 centred samples live in a 399-dim subspace
     pca_ctrl = maps_mod.pca_map(X_a, n_components=rank_limit, seed=SEED)
@@ -477,7 +474,7 @@ def _matched_dimensionality_control(
     max_abs_distance_diff = float(np.abs(raw_d[rows, cols] - ctrl_d[rows, cols]).max())
     assert max_abs_distance_diff < 1e-3, (
         f"PCA projection changed pairwise distances by {max_abs_distance_diff:.3e}; "
-        "the matched-dimensionality control is not a rotation"
+        "the full-rank PCA isometry check failed"
     )
 
     return {
@@ -492,12 +489,12 @@ def _matched_dimensionality_control(
         "rank_correlation_2d": metrics["rank_correlation_2d"],
         "max_abs_distance_diff_vs_raw": max_abs_distance_diff,
         "note": (
-            "512 components were requested to match Map B's 512 dimensions, but 400 "
-            "centred samples have rank <= 399, so a 512-component PCA cannot exist. "
-            "399 components is the full-rank projection and preserves Euclidean "
-            "distances exactly, therefore these metrics are Map A's metrics (to "
-            "randomised-SVD precision). The comparison is not a dimensionality "
-            "artefact: raw pixels are intrinsically 399-dimensional here, not 4096."
+            "512 components were requested, but 400 centred samples have rank <=399. "
+            "A full-rank 399-component PCA preserves raw-pixel pairwise distances "
+            "and therefore reproduces its metrics (up to numerical precision). "
+            "This is an isometry sanity check, not a causal dimensionality ablation: "
+            "both observed point clouds have sample rank <=399 and the model's "
+            "pretraining, geometry and nominal widths remain confounded."
         ),
     }
 

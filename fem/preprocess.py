@@ -51,6 +51,11 @@ def standardize(batch_uint8: torch.Tensor | np.ndarray) -> torch.Tensor:
     float32 tensor with the same shape, standardised.
     """
     tensor = torch.as_tensor(batch_uint8, dtype=torch.float32)
+    if tensor.numel() and not torch.isfinite(tensor).all():
+        raise ValueError(
+            "standardize() input contains non-finite values (NaN or infinity); "
+            "these would propagate into the model embeddings"
+        )
     if tensor.numel() and (tensor.min() < -1e-4 or tensor.max() > 255.0001):
         raise ValueError(
             "standardize() expects pixels on the 0..255 scale; "
@@ -83,6 +88,14 @@ def to_model_input(images: np.ndarray, size: int = FACE_SIZE) -> torch.Tensor:
     embedder's job.
     """
     array = np.ascontiguousarray(np.asarray(images, dtype=np.float32))
+    # Check finiteness *before* the range test: NaN comparisons are all False,
+    # so a NaN image would otherwise slip through min()/max() and become a
+    # NaN embedding.
+    if not np.isfinite(array).all():
+        raise ValueError(
+            "to_model_input() input contains non-finite values (NaN or infinity); "
+            "these would propagate into the model embeddings"
+        )
     if array.ndim == 3:
         tensor = torch.from_numpy(array).unsqueeze(1)  # (N, 1, H, W)
     elif array.ndim == 4:

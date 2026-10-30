@@ -134,30 +134,35 @@ frames), not more Olivetti. On this data the answer is "Map B has no confusions 
 
 ---
 
-## 8. Dimensionality control: the win is not an artefact of 4096-d vs 512-d
+## 8. Full-rank PCA isometry check, not a dimensionality ablation
 
 **Observed:** 400 centred samples span at most rank 399, so a 512-component PCA of the raw pixels
-cannot exist (512 was requested; 399 is the maximum). Projecting onto 399 components is the
-full-rank orthogonal projection: it retains 1.0 of the variance and changes pairwise distances by at
-most 3.47e-12, so every metric is identical to Map A's (e.g. silhouette 0.10557364 both).
+cannot exist. Projecting onto the 399-component full-rank basis retains all observed variance and
+changes pairwise distances by at most 3.47e-12. Unsurprisingly every distance-based metric is
+identical to Map A's (e.g. silhouette 0.10557364).
 
-**Means:** The raw-pixel representation is intrinsically 399-dimensional here — *lower* than Map B's
-512-d space. Distance concentration from a higher nominal dimension cannot explain why Map B
-separates identities better.
+**Means:** This checks that an orthogonal change of basis did not alter Euclidean distances. It
+is **not** a matched-dimensionality control that isolates feature count from pretrained
+representation and training-corpus effects; both observed 400-sample point clouds have rank at
+most 399 after centring regardless of nominal feature width.
 
-**So what:** The silhouette gap (0.10557 → 0.49698) and the EER gap (0.2050 → 0.011111) are about the
-representation, not about dimensionality. Recorded in `results/olivetti.json` under
-`controls.map_a_pca512`.
+**So what:** The embedding wins on these data, but this isometry check alone cannot attribute
+causality to representation rather than dimensionality. The check remains in
+`results/olivetti.json` under its original key `controls.map_a_pca512` for compatibility.
 
 ---
 
 ## 9. Limitations
 
-- **Map A is the best case for raw pixels:** Olivetti is pre-aligned and tightly cropped. LFW or
-  webcam frames would be harder, so this result is an upper bound on what raw pixels can do.
-- **No training anywhere:** both maps are frozen, fixed recipes; there is no train/test split.
-- **PCA for Map A is fit on all 400 images, including the probes.** If anything this favours Map A,
-  so a Map B win is conservative (recorded in the results notes).
+- **Olivetti is favourable to raw pixels:** images are pre-aligned and tightly cropped; it is
+  reasonable to expect additional unconstrained variation to make raw-pixel matching harder, but
+  that expectation is not a proven mathematical upper bound.
+- **No local model training:** the CNN is frozen but pretrained on a much larger corpus. The
+  original 5/5 verification operating points reuse the same Olivetti identities/trials for
+  threshold selection and measurement.
+- **PCA for the 2-D plot is fit on all 400 images, including probes.** Headline silhouette,
+  identification and verification metrics use the unprojected full vectors, so this transductive
+  plot fit does not demonstrate that the measured gap is conservative.
 - **The 2-D scatter must not be measured.** It preserves only part of the true geometry (0.8070 for
   Map A, 0.5174 for Map B).
 - **95 % variance is not reached in the first 100 components** (`null` in the JSON), so statements

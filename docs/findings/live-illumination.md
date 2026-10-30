@@ -42,8 +42,9 @@ flash/left 0.3095 (0.2282–0.4971), flash/right 0.2628 (0.1760–0.3393), flash
 **Means:** Even with nothing changed, same-person distances run about 0.19 within a scan and about
 0.23–0.37 between scans. The worst same-condition pair reaches 0.4971.
 
-**So what:** A threshold below about 0.50 rejects me under lighting conditions I already captured.
-That is the convenience side of the security dial, before any stranger is involved.
+**So what:** A one-reference verifier using the particular frame pair at distance 0.4971
+would reject that probe below 0.4971. A five-reference verifier might find a closer match;
+these pairs alone do not set a usable security threshold.
 
 *Correction:* the previous draft quoted 0.18–0.37 as the noise floor. That range was
 between-scan same-condition distance; within-scan jitter was never measured, and it reaches 0.4425.
@@ -55,13 +56,13 @@ between-scan same-condition distance; within-scan jitter was never measured, and
 **Observed:** Room light versus phone flash, both from the front (400 frame pairs across the two
 repeats): mean 0.2585, range 0.1683–0.3839.
 
-**Means:** That mean sits inside the same-condition between-scan range (0.2268–0.3707) and above
-within-scan jitter (0.1864). Making the face much brighter did not move the embedding beyond
-ordinary repeat-scan variation.
+**Means:** The observed contrast sits inside the same-condition between-scan range
+(0.2268–0.3707) and above within-scan jitter (0.1864). Separate scans do not isolate
+brightness from pose, sensor auto-exposure or time.
 
-**So what:** The model is invariant to how much light there is. "Robust to lighting" is true for
-brightness. (The previous draft's 0.20–0.38 range was slightly too narrow: the true minimum is
-0.1683, though the mean is unchanged.)
+**So what:** These captures do not show a large additional front-lit room-versus-flash effect;
+this is **not** evidence of general brightness invariance. The previous draft's 0.20–0.38 range
+was slightly too narrow: the observed minimum is 0.1683.
 
 ---
 
@@ -80,11 +81,11 @@ brightness. (The previous draft's 0.20–0.38 range was slightly too narrow: the
 
 Mean direction effect: 0.7143. That is **3.83×** the mean within-scan jitter of 0.1864.
 
-**Means:** Moving the same light from front to side moved my embedding roughly 0.64–0.71, nearly
-four times the frame jitter. The model is not invariant to shadow direction.
+**Means:** Across these sequential captures, differently labelled flash directions accompany
+mean distances of roughly 0.64–0.71 from front to side, substantially above frame jitter.
 
-**So what:** "Robust to lighting" is only half true. Intensity is free, direction is expensive. The
-previous draft said "about three times"; the computed ratio is 3.83×.
+**So what:** Direction is a strong candidate explanation, but pose and auto-exposure were not
+controlled. The descriptive direction/jitter ratio is 3.83×, not proof of a causal effect.
 
 ---
 
@@ -96,8 +97,8 @@ previous draft said "about three times"; the computed ratio is 3.83×.
 **Means:** Two half-shadowed faces are closer to each other than either is to a front-lit face,
 regardless of which half is dark. The model appears to have a "half-shadowed" region in its space.
 
-**So what:** Enrolling only front-lit photos leaves side-lit unlocks furthest away. If enrolment
-includes a side-lit scan, both sides are probably covered. (Confirmed from the old draft.)
+**So what:** Enrolling multiple conditions, including a side-lit scan, is a testable hypothesis;
+these pair distances do not measure FAR/FRR for that enrolment policy.
 
 ---
 
@@ -107,9 +108,8 @@ includes a side-lit scan, both sides are probably covered. (Confirmed from the o
 0.9671. Flash left versus bottom is next at 0.8079. Bottom lighting is also the least stable frame
 to frame: flash/bottom_1 has the widest within-scan jitter (mean 0.3345, max 0.4425).
 
-**Means:** Under-lighting is the condition the model handles least well, and it is also the least
-stable. Faces are almost never lit from below in photos, so the training data likely contained the
-least of it.
+**Means:** Under-lighting accompanies the largest variation and cross-condition distances in
+this small sample. A training-image explanation is plausible but was not tested.
 
 **So what:** 0.9671 is the worst me-vs-me frame distance found, on a 0–2 Euclidean scale; cosine
 similarity 0.5324. The previous draft's 0.94 understated the true maximum.
@@ -128,8 +128,8 @@ a 4.8 % reduction. Scan-mean vectors had norm 0.9906 before renormalisation (ran
 **Means:** Averaging frames helps, but only modestly for genuine pairs — because the frames within a
 scan are not independent (section 7). It does not rescue a side-lit/bottom-lit pair.
 
-**So what:** Enrol with several frames and average them; that is a small, free robustness win. Do
-not expect it to fix the worst lighting mismatch.
+**So what:** Averaging reduces observed mean distances modestly. It is not yet shown to improve
+verification error rates; compare enrolment rules on held-out identities before recommending one.
 
 ---
 
@@ -149,21 +149,20 @@ and do not treat within-scan maxima as independent draws.
 
 ---
 
-## 8. Cross-domain sanity check: where a stranger lands (not calibrated)
+## 8. Cross-domain sanity check (not a webcam stranger sample)
 
 **Observed:** Using the same frozen model on the 400 Olivetti faces: the closest Olivetti embedding
 to any of my 12 scan means is 0.8869 (nearest scan: flash_bottom_2); the mean over the 400 Olivetti
 faces of their closest-scan distance is 1.2875. At frame level the minimum is 0.8803.
 
-**Means:** A stranger's closest approach (0.8869) is *below* my worst same-person frame distance
-(0.9671). On this evidence no threshold separates all of me from all of them. But the comparison is
-domain-confounded: different capture device, crop and resolution.
+**Means:** The minimum across these *different-domain* subjects (0.8869) is below the maximum
+same-person webcam frame-pair distance (0.9671), but the scores arise from different capture,
+crop and resolution. The pair maximum is not a bound for a five-reference verifier either.
 
-**Caveat (must be repeated wherever this number is used):** *different capture/crop/resolution;
-upper bound only.* This is not a calibrated impostor distribution.
+**Caveat (must be repeated wherever this number is used):** *This is neither an upper nor a lower
+bound on same-camera strangers, and cannot calibrate an operating threshold.*
 
-**So what:** It kills the hope of picking a threshold from the live data alone. A real threshold
-needs at least one stranger captured the same way.
+**So what:** Same-domain impostor captures and identity/session-disjoint evaluation are needed.
 
 ---
 
@@ -173,16 +172,17 @@ needs at least one stranger captured the same way.
 map reaches EER 0.08706 and the embedding map reaches EER 0.00224; at a matched 1 % false-reject
 rate the raw-pixel map accepts 48.59 % of impostors versus 0.044 % for the embedding map.
 
-**Means:** In a controlled open-set protocol, the representation is the dominant lever on where the
-security/convenience dial sits — the embedding buys roughly a 38.8× lower equal-error rate.
+**Means:** On the same Olivetti trials used to select the original threshold, the embedding has a
+38.8× lower *interpolated* EER. The 0.22 % figure is near/below the 0.5 % genuine-trial grid; it
+is not a directly achievable FAR=FRR threshold.
 
-**What it does not tell us:** nothing about the *webcam* threshold. That protocol uses pre-aligned
-Olivetti stills and no webcam-domain impostors, so it cannot calibrate the live system. It does not
-substitute for the missing stranger scan.
+**What it does not tell us:** This known-population comparison reuses identities and, for the
+original numbers, uses the same trials for calibration and evaluation. It does not calibrate a
+webcam, nor test novel webcam strangers. See the separate identity-disjoint calibration/evaluation
+block in `results/threshold.json` for a more honest Olivetti-only check.
 
-**So what:** The live study says direction is expensive and jitter sets a floor; the Olivetti
-threshold study says the embedding separates identities far better. Joining them into a real
-FaceID threshold is the open item.
+**So what:** These data suggest the embedding separates Olivetti identities better; a calibrated
+live verifier still needs consented same-camera subjects and independent test sessions.
 
 ---
 
@@ -201,10 +201,10 @@ FaceID threshold is the open item.
 
 ## 11. Still to do for Stage 5
 
-- **A stranger scan under room light.** Every number above except section 8 is me vs me. Without one
-  other person captured the same way there is no way to place a threshold; the cross-domain check is
-  confounded and only bounds the problem.
-- A second subject and a second capture session would test whether condition metadata repeats.
+- **Consented same-camera strangers and held-out people/sessions.** Every within-live distance above
+  is me vs me; cross-domain scores do not bound the missing webcam impostor distribution. One extra
+  person is a pilot, not adequate evidence for a very low FAR.
+- A second capture session and a larger subject sample should test whether condition effects repeat.
 - The old "mild test" observation (room light versus a dimmer shot with an under-chin shadow) stays
   excluded: it also changed distance, head angle and expression, so its distance cannot be
   attributed to lighting. It is a good reminder to change one variable per experiment, not a number.

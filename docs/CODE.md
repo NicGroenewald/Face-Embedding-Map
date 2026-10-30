@@ -60,7 +60,7 @@ Runners orchestrate; they must not re-implement `fem`.
 
 | script | role |
 |---|---|
-| `scripts/live_capture.py` | webcam capture CLI: MTCNN on CPU, embedder on MPS, warm-up frames discarded, one detection per frame, metadata sidecar, argparse + HUD, never overwrites a scan |
+| `scripts/live_capture.py` | webcam capture CLI: MTCNN on CPU, embedder on MPS, warm-up frames discarded, one detection per frame, unique metadata sidecar, private gitignored output by default |
 | `scripts/compare_scans.py` | human-readable distance report over the saved scans (jitter, repeat scans, intensity/direction effects, cosine equivalents) with PASS/FAIL self-checks and non-zero exit on failure |
 
 ---
@@ -70,7 +70,8 @@ Runners orchestrate; they must not re-implement `fem`.
 ```
 data/sklearn/                 ignored cache: fetch_olivetti_faces(data_home=...)
 data/scans.json               tracked manifest for the 12 live scans (source of truth)
-data/scans/*.npy   tracked raw live data, (10, 512) float32, unit-norm rows
+data/scans/*.npy             tracked historical biometric templates (10, 512), unit norms
+data/private-scans/           gitignored default output for new biometric captures
 results/*.json                tracked experiment outputs (written by analysis/)
 results/embeddings_olivetti.npz   ignored cache (deterministic, regenerable)
 figures/*.png + *.pdf         tracked result figures (written by analysis/)
@@ -81,14 +82,15 @@ figures/*.png + *.pdf         tracked result figures (written by analysis/)
 conversions (`cos = 1 − d²/2`) assume unit vectors, and a violated invariant
 must fail loudly rather than produce plausible-looking wrong numbers.
 
-### Adding a new live scan
+### Capturing additional private scans
 
-1. Capture: `python scripts/live_capture.py --intensity flash --direction right --repeat 3 --intensity flash --direction right --repeat 3`
-   (writes `<stamp>-flash_right_3.npy` + a `.json` sidecar).
-2. Add the sidecar's `name`/`file`/`intensity`/`direction`/`repeat` as an entry
-   in `data/scans.json` (the script deliberately does not edit the manifest:
-   the historical 12-scan manifest is curated and tests pin its size).
-3. Re-run the live analysis (`make live`).
+1. Capture: `python scripts/live_capture.py --intensity flash --direction right --repeat 3`
+   (writes a unique timestamped `.npy` and `.json` under gitignored `data/private-scans/`).
+2. Keep biometric templates private and get informed subject consent before publication.
+   The sidecar's unique `name` is a capture ID; its `label` is human-readable metadata.
+3. **Do not append an entry to `data/scans.json` and assume `make live` will include it.**
+   `analysis/run_live.py` intentionally asserts the historical twelve scans and two repeats per
+   condition. A new study needs a subject-aware manifest and runner (see `docs/ROADMAP.md`).
 
 ---
 
@@ -96,7 +98,8 @@ must fail loudly rather than produce plausible-looking wrong numbers.
 
 * **Distances are Euclidean.** A verifier accepts when `distance <= threshold`.
   FAR is the fraction of impostor trials accepted, FRR the fraction of genuine
-  trials rejected, EER is their crossing.
+  trials rejected. EER interpolates between discrete thresholds; it need not
+  be the empirical FAR/FRR at one attainable threshold.
 * **`cosine_from_euclidean` returns cosine similarity**, not distance:
   `1 − d²/2` (0 = orthogonal, 1 = identical).
 * **Measure in full dimensionality.** `silhouette` and `knn_loo` take the
@@ -119,14 +122,12 @@ must fail loudly rather than produce plausible-looking wrong numbers.
 
 ## Running things
 
-Always use the project venv and a writable matplotlib cache:
+Activate an environment installed from `requirements.txt` (see `README.md`); the Makefile uses
+`python3` from PATH by default and sets a writable matplotlib cache. Override with
+`make PY=/path/to/python all` when needed. An installed wheel can point at a source checkout via
+`FEM_PROJECT_ROOT=/path/to/checkout` (dataset and generated results are not bundled).
 
-```sh
-export MPLCONFIGDIR="$PWD/.cache/mpl"
-PY=/Users/nic/.venvs/nn-crew/bin/python
-```
-
-`make` targets do both for you:
+`make` targets:
 
 ```sh
 make test           # pytest, offline, no webcam, no model download
@@ -139,13 +140,14 @@ make paper          # pdflatex twice
 make all            # test + all experiments
 ```
 
-Direct equivalents (from repo root):
+Direct equivalents (from an activated environment, at repo root):
 
 ```sh
-$PY -m pytest -q
-$PY analysis/run_olivetti.py
-$PY scripts/compare_scans.py
-$PY scripts/live_capture.py --help
+export MPLCONFIGDIR="$PWD/.cache/mpl"
+python -m pytest -q
+python analysis/run_olivetti.py
+python scripts/compare_scans.py
+python scripts/live_capture.py --help
 ```
 
 ---

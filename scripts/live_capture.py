@@ -33,16 +33,17 @@ you see is what gets embedded.
 Run it
 ------
     export MPLCONFIGDIR="$PWD/.cache/mpl"
-    /Users/nic/.venvs/nn-crew/bin/python scripts/live_capture.py --label flash_left_3 \\
+    python scripts/live_capture.py --label flash_left_3 \\
         --intensity flash --direction left --repeat 3
 
 Keys in the preview window: ``s`` = scan, ``q``/``Esc`` = quit.  ``--no-preview``
 captures exactly one scan and exits (useful on a machine without a display).
 
-The resulting ``.json`` sidecar contains the fields needed to add the scan to
-``data/scans.json``, which is the manifest ``fem.data.load_scans`` reads; the
-script does not edit the manifest itself, because the historical 12-scan
-manifest is curated and tests pin its size.
+New face embeddings are biometric templates. By default they are saved under
+``data/private-scans/`` (gitignored), not beside the published twelve scans.
+The ``.json`` sidecar provides condition metadata, but the historical
+``data/scans.json`` manifest and fixed twelve-scan analysis are not updated
+automatically; publish or extend the study only after consent and protocol review.
 """
 
 from __future__ import annotations
@@ -66,7 +67,7 @@ import numpy as np
 import torch
 from facenet_pytorch import MTCNN
 
-from fem.config import FACE_SIZE, SCANS_DIR
+from fem.config import FACE_SIZE, PRIVATE_SCANS_DIR
 from fem.embed import MODEL_NAME, FaceEmbedder
 
 WINDOW_TITLE = "Face Embedding Map - webcam"
@@ -114,8 +115,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--outdir",
         type=Path,
-        default=SCANS_DIR,
-        help="output directory (default: data/scans/)",
+        default=PRIVATE_SCANS_DIR,
+        help="private output directory (default: data/private-scans/, gitignored)",
     )
     parser.add_argument("--camera", type=int, default=0, help="OpenCV camera index (default: 0)")
     parser.add_argument(
@@ -329,7 +330,8 @@ def save_scan(
 
     metadata = {
         "format_version": 1,
-        "name": args.label,
+        "name": name,  # unique capture identifier, including collision suffix
+        "label": args.label,  # human condition/repeat label for manual curation
         "file": npy_path.name,
         "intensity": args.intensity,
         "direction": args.direction,
@@ -372,6 +374,7 @@ def main(argv: list[str] | None = None) -> int:
             "[live] controls: 's' = scan, 'q'/Esc = quit. "
             f"output: {Path(args.outdir).resolve()}"
         )
+        print("[live] biometric templates: keep private until subject consent and study review")
         while True:
             ok, frame = camera.read()
             if not ok:

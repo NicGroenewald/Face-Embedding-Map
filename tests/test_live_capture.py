@@ -18,7 +18,7 @@ import pytest
 import torch
 
 from scripts import live_capture as live
-from fem.config import SCANS_DIR
+from fem.config import PRIVATE_SCANS_DIR
 
 
 # ---------------------------------------------------------------------------
@@ -30,7 +30,7 @@ def test_parse_args_defaults_and_derived_label():
     assert args.frames == 10
     assert args.repeat == 1
     assert args.warmup == live.DEFAULT_WARMUP
-    assert args.outdir == SCANS_DIR
+    assert args.outdir == PRIVATE_SCANS_DIR
     assert args.device is None
 
 
@@ -177,7 +177,8 @@ def test_save_scan_writes_embeddings_and_manifest_compatible_sidecar(tmp_path):
     np.testing.assert_array_equal(saved, stacked)
 
     sidecar = json.loads(json_path.read_text(encoding="utf-8"))
-    assert sidecar["name"] == "flash_left_3"
+    assert sidecar["name"] == npy_path.stem
+    assert sidecar["label"] == "flash_left_3"
     assert sidecar["file"] == npy_path.name
     assert sidecar["intensity"] == "flash"
     assert sidecar["direction"] == "left"
@@ -191,10 +192,12 @@ def test_save_scan_writes_embeddings_and_manifest_compatible_sidecar(tmp_path):
 
 def test_save_scan_never_silently_overwrites(tmp_path):
     args = live.parse_args(["--label", "scan", "--outdir", str(tmp_path)])
-    first_npy, _first_json = live.save_scan(_unit_frames(0), [0.9] * 10, args, "cpu")
-    second_npy, _second_json = live.save_scan(_unit_frames(1), [0.9] * 10, args, "cpu")
+    first_npy, first_json = live.save_scan(_unit_frames(0), [0.9] * 10, args, "cpu")
+    second_npy, second_json = live.save_scan(_unit_frames(1), [0.9] * 10, args, "cpu")
 
     assert first_npy != second_npy
+    assert json.loads(first_json.read_text())["name"] == first_npy.stem
+    assert json.loads(second_json.read_text())["name"] == second_npy.stem
     assert first_npy.exists() and second_npy.exists()
     # The two scans keep their own data.
     assert not np.array_equal(np.load(first_npy), np.load(second_npy))

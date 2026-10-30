@@ -88,3 +88,31 @@ def test_standardize_known_values_and_validation():
 
     with pytest.raises(ValueError):
         standardize(torch.tensor([300.0]))
+
+
+# ---------------------------------------------------------------------------
+# non-finite inputs must fail loudly, not become NaN embeddings
+# ---------------------------------------------------------------------------
+def test_to_model_input_rejects_nonfinite_values():
+    # NaN comparisons are all False, so without an explicit finiteness check a
+    # NaN pixel would slip through the min()/max() range validation.
+    for bad in (np.nan, np.inf, -np.inf):
+        images = np.zeros((1, 64, 64), dtype=np.float32)
+        images[0, 0, 0] = bad
+        with pytest.raises(ValueError, match="non-finite"):
+            to_model_input(images)
+
+    rgb = np.zeros((1, 3, 64, 64), dtype=np.float32)
+    rgb[0, 1, 2, 3] = np.nan
+    with pytest.raises(ValueError, match="non-finite"):
+        to_model_input(rgb)
+
+
+def test_standardize_rejects_nonfinite_values():
+    for bad in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match="non-finite"):
+            standardize(torch.tensor([bad]))
+
+    array = np.array([[np.nan, 0.0]], dtype=np.float32)
+    with pytest.raises(ValueError, match="non-finite"):
+        standardize(array)

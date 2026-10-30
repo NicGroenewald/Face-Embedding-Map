@@ -13,6 +13,8 @@ dist/
 # Caches and downloaded data (re-fetchable; not source)
 .cache/
 data/sklearn/
+# New webcam templates are sensitive biometric data; publish only by explicit choice.
+data/private-scans/
 results/*.npz
 
 # LaTeX build artifacts (compiled diagrams and the paper PDF are tracked)

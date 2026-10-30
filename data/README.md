@@ -1,16 +1,21 @@
-# Data
+# Data and biometric privacy
 
-Everything here is either tracked raw data or a regenerable cache.
+The twelve historical scans are committed **face-embedding templates** of one named subject. They
+are not raw photos, but embeddings can support matching/re-identification and must be treated as
+sensitive biometric data. The capture date and subject are also recorded in `scans.json`. Check
+consent, licensing and repository visibility **before publishing or pushing** this data. A credential
+scanner cannot assess biometric privacy; no tracked scan has been removed or rewritten here.
 
-## Tracked
+## Tracked historical study
 
 | path | what it is |
 |---|---|
-| `scans/` | 12 webcam scans, one per lighting condition/repeat. Each is a `(10, 512)` float32 matrix of L2-normalised InceptionResnetV1 embeddings. ~24 KB each. |
-| `scans.json` | The manifest. Makes the raw `.npy` files self-describing; `fem.data.load_scans()` reads it and refuses unknown/inconsistent entries. |
-| `README.md` | This file. |
+| `scans/` | Twelve `(10, 512)` float32 matrices of L2-normalised InceptionResnetV1 vectors. |
+| `scans.json` | Curated manifest giving each historical scan its condition and repeat. |
 
-### Manifest schema
+`fem.data.load_scans()` validates shape, finite values and unit norms. `analysis/run_live.py` is a
+**fixed twelve-scan, two-repeats-per-condition experiment**; it does not automatically analyse extra
+scans. Room light has front/left only, phone flash front/left/right/bottom.
 
 ```json
 {
@@ -25,28 +30,30 @@ Everything here is either tracked raw data or a regenerable cache.
 }
 ```
 
-- `intensity`: `room` (ambient) or `flash` (phone flash).
-- `direction`: `front` | `left` | `right` | `bottom`.
-- `repeat`: 1 or 2 (the second scan of the same condition, used as the repeat baseline).
-- `file` is relative to `data/scans/`.
+A `file` entry is relative to `data/scans/`, not to the manifest's location. The historical
+condition/repeat names end in `_1` or `_2`; `Scan.repeat` currently derives its value from that
+suffix. Avoid treating a sidecar's timestamped capture ID as a study condition label.
 
-The design is unbalanced by necessity: room light was only available from the front and left, so
-there are 12 scans rather than 16. `fem.data.load_scans()` reports this in the JSON results.
-
-### Adding a scan
+## Capturing new data safely
 
 ```sh
-$PY scripts/live_capture.py --intensity flash --direction left --repeat 3 --frames 10
+python scripts/live_capture.py --intensity flash --direction left --repeat 3 --frames 10
 ```
 
-The capture tool writes `<name>.npy` plus a `.json` sidecar. **Add the matching entry to
-`scans.json` by hand** — updating the manifest automatically is on the roadmap
-(`docs/ROADMAP.md` §7). Then `make live` picks it up.
+New captures default to **gitignored `data/private-scans/`** and receive a `.npy` template plus a
+`.json` sidecar with a unique capture ID (`name`) and the requested human `label`. The command
+never modifies the published manifest. Keep new scans private; obtain informed consent and agree on
+a study protocol before deliberately moving a copy into `scans/` or changing `scans.json`.
 
-## Ignored caches (regenerable, never committed)
+**Do not simply append a third scan to the manifest and run `make live`:** the historical runner
+asserts twelve scans and exactly two repeats per condition. A new multi-subject/live-verification
+analysis needs an explicit new runner, a subject-aware manifest, identity-disjoint calibration/test
+splits, and a fresh paper/results schema. That work remains on `docs/ROADMAP.md`.
+
+## Ignored caches
 
 | path | what it is | regenerate with |
 |---|---|---|
-| `sklearn/` | Olivetti faces downloaded once by `fetch_olivetti_faces(data_home=...)` (~4 MB) | `make maps` |
-| `../.cache/mpl/` | matplotlib cache (the home directory cache is not writable) | any `make` target |
-| `../results/*.npz` | deterministic caches: 400 Olivetti embeddings, 2-D map coordinates, threshold curves | `make maps` |
+| `sklearn/` | downloaded Olivetti faces (~4 MB) | `make maps` |
+| `../.cache/mpl/` | matplotlib cache | any plotting target |
+| `../results/*.npz` | Olivetti embeddings and analysis caches | `make maps`; `make all` for all caches |

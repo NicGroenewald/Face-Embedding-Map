@@ -4,9 +4,9 @@
 # matplotlib cache. Retyping either by hand is how a run happens in the wrong
 # environment and nobody notices until the numbers are wrong.
 #
-# Override the interpreter if needed:  make PY=/path/to/python test
+# Activate a project virtualenv first, or override: make PY=/path/to/python test
 
-PY ?= /Users/nic/.venvs/nn-crew/bin/python
+PY ?= python3
 MPLCONFIGDIR := $(CURDIR)/.cache/mpl
 export MPLCONFIGDIR
 
@@ -32,7 +32,7 @@ maps: cache                                    ## E1+E2: Map A vs Map B on Olive
 live: cache                                    ## E3: webcam illumination study
 	$(PY) analysis/run_live.py
 
-threshold: cache                               ## E4: open-set verification / threshold analysis
+threshold: cache                               ## E4: within-population verification + held-out check
 	$(PY) analysis/run_threshold.py
 
 arch: cache                                    ## E5: verified InceptionResnetV1 layer shapes
@@ -42,8 +42,8 @@ compare: cache                                 ## human-readable scan-distance r
 	$(PY) scripts/compare_scans.py
 
 diagrams:                                      ## rebuild the paper's architecture diagrams
-	cd paper/figures/src && for f in $(DIAGRAMS); do \
-		pdflatex -interaction=nonstopmode -halt-on-error $$f.tex >/dev/null && mv $$f.pdf ../ ; \
+	set -e; cd paper/figures/src; for f in $(DIAGRAMS); do \
+		pdflatex -interaction=nonstopmode -halt-on-error $$f.tex >/dev/null; mv $$f.pdf ../; \
 	done
 
 paper:                                         ## compile paper/main.pdf (two passes)

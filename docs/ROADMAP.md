@@ -1,8 +1,9 @@
 # Next best steps
 
 *Prioritized after the October 2026 rebuild. The project has a working comparison and a paper;
-what it does not yet have is an impostor distribution for the live pipeline — that is the single
-thing that turns the webcam study from a variability measurement into a calibrated FaceID result.*
+what it does not yet have is a consented, identity- and session-disjoint impostor distribution for
+the live pipeline. Without one, the webcam study measures same-person variability only; with one, a
+held-out calibration becomes possible (still small-sample, not a deployment guarantee).*
 
 Legend: **P0** = blocks the main claim / next paper; **P1** = strengthens the evidence a reviewer
 will ask for; **P2** = engineering and dissemination; **P3** = research extensions.
@@ -17,18 +18,22 @@ The live study currently has one subject and no impostors (`findings/live-illumi
 Every "worst genuine" number (0.967) is me-vs-me; there is no number that says what a stranger
 scores, so no threshold can be chosen from this data.
 
-**Do:** 3–5 consenting volunteers × the same protocol as `data/scans/` (room/flash × front/left/
-right/bottom, two repeats, 10 frames per scan), captured with `scripts/live_capture.py`.
-**Then:** compute the genuine/impostor distributions *in the webcam domain*, the ROC, the EER, and
-FAR/FRR at the operating points the paper already reports for Olivetti.
-**Acceptance:** `results/live.json` gains a `verification` block with per-subject splits, and the
-paper's FaceID section can quote a webcam EER instead of a cross-domain caveat.
-**Effort:** ~2 h capture + ~1 h analysis. This is the highest-value next experiment in the project.
+**Do:** first pilot a consented capture protocol with 3–5 additional people under comparable
+conditions, then recruit enough identities and independent sessions to reserve disjoint people for
+calibration and evaluation. Save new templates privately (`scripts/live_capture.py` defaults to
+`data/private-scans/`); do not append them to the fixed twelve-scan historical manifest.
+**Then:** analyse genuine, known-population impostor and unknown-to-gallery trials *within the same
+webcam domain*. Select thresholds on calibration identities and report empirical FAR/FRR on held-out
+identities/sessions; avoid interpreting a few volunteers as evidence for very small FAR.
+**Acceptance:** a new subject-aware manifest/runner and reproducible live verification results,
+with consent/privacy controls, capture design and confidence intervals by identity. Only then can
+the paper discuss a webcam operating point. Capture and ethics cannot be automated by this repo.
 
 ### 2. Recalibrate the threshold per condition
 
-The direction effect (0.714, 3.83× noise) means one global threshold is the wrong model. Test a
-small set of operating points: (a) a single global threshold, (b) a threshold conditioned on a cheap
+The observed direction contrast (0.714, 3.83× frame jitter) motivates—but does not establish—the
+hypothesis that one global threshold may be insufficient. On held-out subjects, test: (a) a single
+global threshold, (b) a threshold conditioned on a cheap
 lighting-quality proxy (e.g. face-region brightness asymmetry), (c) multi-frame aggregation at
 verification.
 **Acceptance:** a table of EER/FAR/FRR for each rule, and one sentence saying which rule a
@@ -72,8 +77,9 @@ property of the model or of the easy dataset.
 
 ### 7. Improve the live protocol code
 
-- `scripts/live_capture.py` writes a sidecar but does **not** append to `data/scans.json`; make it
-  append/update the manifest automatically so a new scan can never be orphaned.
+- `scripts/live_capture.py` saves private scans and sidecars but intentionally does **not** mutate
+  the historical `data/scans.json`; design a separate consent-aware, subject-aware manifest and
+  runner before importing new scans. Keep raw templates out of public git by default.
 - Add a per-frame quality score (face-box probability, sharpness, pose) and store it, then test
   quality-weighted frame pooling at enrolment (the paper shows plain pooling buys only 4.8 %).
 - Add a small `--list` mode that prints the current manifest and per-condition distances.
@@ -96,7 +102,8 @@ split) and add it. `CITATION.cff` is already present; update it when the paper i
 ### 10. Archive the paper
 
 Put `paper/main.pdf` on arXiv (cs.CV) or Zenodo and add the DOI to the README and `CITATION.cff`.
-The claim in the abstract is now reproducible from a fresh clone, which is the main prerequisite.
+The original machine reproduced results from a fresh clone; independent packaging, external data
+consent and scientific claim review still precede an archival release.
 
 ### 11. Lock the environment
 

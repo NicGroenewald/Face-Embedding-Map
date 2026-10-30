@@ -4,11 +4,13 @@
 impossible, message the Lead instead of silently diverging.*
 
 > **Historical note.** This document was the build contract written *before* the October 2026
-> rebuild. Some statements below describe the starting state ("Map B: not built yet", "95 % milestone
-> null"), which the build then resolved. For the finished state read `README.md`, `docs/CODE.md`,
-> `results/README.md` and `docs/ROADMAP.md`; §3 has been updated to the final repository layout.
+> rebuild. Some statements below describe the starting state ("Map B: not built yet"), which the
+> build then resolved. The original specification overstated open-set evaluation and implied
+> cross-domain distances bounded stranger scores; those claims were corrected in the final paper.
+> For the finished state read `README.md`, `docs/CODE.md`, `results/README.md` and
+> `docs/ROADMAP.md`; §3 has been updated to the final layout.
 
-This document is the single source of truth for:
+This was the design contract for:
 
 1. what the project is trying to prove,
 2. the environment to run things in,
@@ -41,8 +43,8 @@ What is missing, and what this build adds:
 - **Stage 3**: Map B on Olivetti (never run).
 - **Stage 4**: quantitative comparison in *full dimensionality* — silhouette, 1-nearest-neighbour
   leave-one-out, genuine/impostor ROC-AUC and EER — Map A vs Map B.
-- **Stage 5b**: an actual open-set verification / threshold analysis (the "FaceID bit"), including
-  the Map A vs Map B comparison the plan calls the potential headline result.
+- **Stage 5b**: known-population cross-identity verification on Olivetti, with the Map A vs Map B
+  comparison; the original "open-set FaceID" wording was too broad without independent strangers.
 - A cleaned-up, reproducible codebase and test suite.
 - A research paper (LaTeX → PDF) with architecture diagrams and result figures.
 
@@ -116,7 +118,7 @@ for read-only caches.
 ├── analysis/                     # experiment runners; each writes results/*.json + figures/
 │   ├── run_olivetti.py           # E1 + E2  (Map A vs Map B)
 │   ├── run_live.py               # E3       (webcam illumination study)
-│   ├── run_threshold.py          # E4       (open-set verification)
+│   ├── run_threshold.py          # E4       (known-population verification)
 │   ├── model_arch.py             # E5       (verified layer shapes)
 │   └── _common.py                # JSON header/provenance + numpy-safe serialisation
 ├── scripts/                      # standalone command-line tools
@@ -390,15 +392,16 @@ bottom; two scans (repeat 1 and 2) per condition; one subject.
    same scan pair. Report mean reduction (%) — support for "average N frames at enrolment".
 7. **12×12 heatmap** of mean frame-pair distance between scans, ordered room-front, flash-front,
    flash-left, flash-right, flash-bottom.
-8. **Threshold consequence:** worst genuine frame pair distance over all 12 scans (max), and the
-   same after frame averaging. State: "any threshold below X rejects the enrolled user."
+8. **Observed single-reference contrast:** worst genuine frame-pair distance over all 12 scans
+   (max), and the same after frame averaging. A lower threshold rejects *that pair* with one
+   reference; it is not a bound for a five-reference verifier.
 9. **Cross-domain sanity check:** distance from each live scan to the 400 Olivetti embeddings
    (E2, same model). Label it explicitly as domain-confounded (different capture, crop and
-   resolution) — an upper bound on stranger distance, not a calibrated impostor distribution.
+   resolution): neither upper nor lower bound on webcam strangers, not an impostor distribution.
    Include it in JSON with a `caveat` string the paper must repeat.
 10. Euclidean↔cosine conversion for every headline pair.
 
-### E4 — Open-set verification / the FaceID threshold (controlled, on Olivetti)
+### E4 — Known-population verification (controlled, on Olivetti)
 
 This is the Map A vs Map B comparison the plan calls the potential headline result.
 
@@ -502,7 +505,7 @@ Common header for every file:
                              "cosine_equivalent": 0.0},
   "cross_domain_impostor": {"olivetti_min_distance_to_any_live_scan": 0.0,
                             "olivetti_mean_of_min": 0.0,
-                            "caveat": "different capture/crop/resolution; upper bound only"},
+                            "caveat": "different capture/crop/resolution; no bound on webcam strangers"},
   "matrix_names": ["room_front_1", ...],
   "matrix_mean_distance": [[12x12]]
 }
