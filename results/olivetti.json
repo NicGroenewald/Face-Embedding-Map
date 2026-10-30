@@ -1,8 +1,8 @@
 {
   "common": {
     "schema_version": 1,
-    "created": "2026-10-30T11:04:01Z",
-    "git_commit": "44fbe6b",
+    "created": "2026-10-30T11:42:54Z",
+    "git_commit": "0ee74d4",
     "python": "3.12.14",
     "packages": {
       "numpy": "2.5.3",
@@ -14,10 +14,10 @@
     "device": "mps",
     "seed": 0,
     "notes": [
-      "Map A PCA is fit on all 400 images, including the images later used as probes. If anything this favours Map A (it sees the probes during fitting), so a Map B win is conservative. Recorded as a methodological caveat.",
+      "The Map A and Map B 2-D PCA plots are fitted on all 400 images, including future verification probes. This transductive fit affects the visualisations, not the headline metrics, which use unprojected full-dimensional vectors; it cannot establish that the Map B advantage is conservative.",
       "All clustering/verification metrics are computed in full dimensionality (4096-d pixels / 512-d embeddings); the 2-D PCA scatters are for visualisation only and are never measured on.",
       "confusion.both_wrong_same_choice_fraction is null because Map B's 1-NN accuracy is 100%: no image is misclassified by both maps, so the fraction has no denominator. Reported as null rather than 0.",
-      "512 components were requested to match Map B's 512 dimensions, but 400 centred samples have rank <= 399, so a 512-component PCA cannot exist. 399 components is the full-rank projection and preserves Euclidean distances exactly, therefore these metrics are Map A's metrics (to randomised-SVD precision). The comparison is not a dimensionality artefact: raw pixels are intrinsically 399-dimensional here, not 4096.",
+      "512 components were requested, but 400 centred samples have rank <=399. A full-rank 399-component PCA preserves raw-pixel pairwise distances and therefore reproduces its metrics (up to numerical precision). This is an isometry sanity check, not a causal dimensionality ablation: both observed point clouds have sample rank <=399 and the model's pretraining, geometry and nominal widths remain confounded.",
       "dataset.pixel_range is the dataset-wide range [0.0, 1.0] over all 400 images. The old Map A findings quote 0.083-0.876, which is the range of image 0 only; the dataset as a whole spans the full [0, 1] scale.",
       "confusion.per_identity_accuracy_corr_pearson is null because one map's per-identity accuracy is constant (Map B is 100%), so Pearson correlation is undefined. Reported as null rather than 0."
     ]
@@ -322,7 +322,7 @@
       },
       "rank_correlation_2d": 0.807038027667095,
       "max_abs_distance_diff_vs_raw": 3.468780818138839e-12,
-      "note": "512 components were requested to match Map B's 512 dimensions, but 400 centred samples have rank <= 399, so a 512-component PCA cannot exist. 399 components is the full-rank projection and preserves Euclidean distances exactly, therefore these metrics are Map A's metrics (to randomised-SVD precision). The comparison is not a dimensionality artefact: raw pixels are intrinsically 399-dimensional here, not 4096."
+      "note": "512 components were requested, but 400 centred samples have rank <=399. A full-rank 399-component PCA preserves raw-pixel pairwise distances and therefore reproduces its metrics (up to numerical precision). This is an isometry sanity check, not a causal dimensionality ablation: both observed point clouds have sample rank <=399 and the model's pretraining, geometry and nominal widths remain confounded."
     }
   },
   "confusion": {

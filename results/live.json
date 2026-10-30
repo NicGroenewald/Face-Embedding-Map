@@ -1,8 +1,8 @@
 {
   "common": {
     "schema_version": 1,
-    "created": "2026-10-30T11:04:05Z",
-    "git_commit": "44fbe6b",
+    "created": "2026-10-30T11:42:58Z",
+    "git_commit": "0ee74d4",
     "python": "3.12.14",
     "packages": {
       "numpy": "2.5.3",
@@ -17,7 +17,7 @@
       "Distances are Euclidean between unit vectors; cosine equivalents are cos = 1 - d^2/2 and are listed under cosine_equivalents.",
       "Frames within a scan are temporally correlated (frame_lag): the 10 frames are not 10 independent samples, so effective sample size < 10.",
       "Scan means are renormalised before use; mean-vector norms before renormalisation were 0.9728..0.9967 (mean 0.9906), so pooling barely changes direction.",
-      "The cross-domain check is domain-confounded by capture, crop and resolution; it is an upper bound on stranger distance, not an impostor distribution.",
+      "The cross-domain check is domain-confounded by capture, crop and resolution; it is not a calibrated impostor distribution and is neither an upper nor a lower bound on webcam-domain stranger distance.",
       "design is unbalanced by necessity: room light has front+left only; flash has front/left/right/bottom; two repeats per condition; one subject."
     ]
   },
@@ -157,7 +157,7 @@
     "min": 0.16831819172643603,
     "mean": 0.2584675149257344,
     "max": 0.38385540387962097,
-    "note": "mean 0.258 vs within-scan noise floor 0.186 and same-condition between-scan means 0.227-0.371: brightness adds nothing beyond repeat-scan variation"
+    "note": "observational comparison: mean 0.258 sits within the same-condition between-scan means 0.227-0.371 (within-scan jitter mean 0.186). Room-front and flash-front were captured in separate scans, so this design cannot attribute any difference to brightness alone and makes no causal claim."
   },
   "direction_effect": {
     "pairs": [
@@ -256,7 +256,7 @@
     "nearest_live_scan": "flash_bottom_2",
     "n_olivetti": 400,
     "frame_level_min_distance": 0.8802552908579022,
-    "caveat": "different capture/crop/resolution; upper bound only"
+    "caveat": "different capture/crop/resolution; not a calibrated impostor distribution, and neither an upper nor a lower bound on webcam-domain stranger distance"
   },
   "matrix_names": [
     "room_front_1",
