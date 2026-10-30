@@ -246,7 +246,7 @@ fem/            the library — one module per pipeline stage
                 config · data · preprocess · embed · maps · metrics · plotting
 analysis/       experiment runners (E1–E5); each writes results/*.json + figures/
 scripts/        live_capture.py (webcam CLI) · compare_scans.py (distance report)
-data/           scans.json manifest · scans/ (12 raw scans) · README · sklearn cache (ignored)
+data/           scans.json manifest · README · scans/ and sklearn cache (both ignored; scans are private)
 results/        machine-readable results (JSON, source of truth) + caches (npz, ignored) + README
 figures/        result figures, PNG (200 dpi) + vector PDF, + README
 notebooks/      01-map-a-raw-pixels.ipynb (cleaned, drives fem)

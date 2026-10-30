@@ -30,6 +30,17 @@ EXPECTED_CONDITION_COUNTS = {
     "flash/bottom": 2,
 }
 
+# The .npy templates are biometric data kept out of git (data/README.md), so a
+# fresh clone has the manifest but not the files.
+SCAN_FILES = [
+    config.SCANS_DIR / entry["file"]
+    for entry in json.loads(config.SCANS_MANIFEST.read_text(encoding="utf-8"))["scans"]
+]
+needs_scans = pytest.mark.skipif(
+    not all(path.exists() for path in SCAN_FILES),
+    reason="private webcam scans not present in data/scans/ (not distributed)",
+)
+
 
 # ---------------------------------------------------------------------------
 # Olivetti
@@ -75,14 +86,17 @@ def test_manifest_integrity():
         assert entry["direction"] in {"front", "left", "right", "bottom"}
         assert entry["repeat"] in {1, 2}
 
-        path = config.SCANS_DIR / entry["file"]
-        assert path.exists(), f"manifest points at missing file {path}"
+
+@needs_scans
+def test_manifest_files_are_unit_norm_templates():
+    for path in SCAN_FILES:
         frames = np.load(path)
         assert frames.shape == (config.FRAMES_PER_SCAN, config.EMBED_DIM)
         assert frames.dtype == np.float32
         assert np.allclose(np.linalg.norm(frames, axis=1), 1.0, atol=1e-5)
 
 
+@needs_scans
 def test_load_scans_shapes_conditions_and_norms():
     scan_set = data.load_scans()
 
@@ -113,6 +127,7 @@ def test_load_scans_shapes_conditions_and_norms():
     assert flash_left_2.path.name == "06092026-phone_light_face_left_2.npy"
 
 
+@needs_scans
 def test_each_scan_frame_matches_its_file():
     scan_set = data.load_scans()
     for scan in scan_set:

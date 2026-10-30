@@ -70,7 +70,7 @@ Runners orchestrate; they must not re-implement `fem`.
 ```
 data/sklearn/                 ignored cache: fetch_olivetti_faces(data_home=...)
 data/scans.json               tracked manifest for the 12 live scans (source of truth)
-data/scans/*.npy             tracked historical biometric templates (10, 512), unit norms
+data/scans/*.npy              gitignored historical biometric templates (10, 512), unit norms; not distributed
 data/private-scans/           gitignored default output for new biometric captures
 results/*.json                tracked experiment outputs (written by analysis/)
 results/embeddings_olivetti.npz   ignored cache (deterministic, regenerable)

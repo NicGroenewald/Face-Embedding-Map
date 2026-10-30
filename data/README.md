@@ -1,17 +1,17 @@
 # Data and biometric privacy
 
-The twelve historical scans are committed **face-embedding templates** of one named subject. They
-are not raw photos, but embeddings can support matching/re-identification and must be treated as
-sensitive biometric data. The capture date and subject are also recorded in `scans.json`. Check
-consent, licensing and repository visibility **before publishing or pushing** this data. A credential
-scanner cannot assess biometric privacy; no tracked scan has been removed or rewritten here.
+The twelve historical scans are **face-embedding templates** of one named subject. They are not raw
+photos, but embeddings can support matching/re-identification and are sensitive biometric data, so
+the `.npy` files are **not distributed**: they are gitignored and were purged from git history on
+2026-10-30. Only the manifest (`scans.json`) and the derived distances in `results/live.json` are
+published. A fresh clone cannot re-run `make live`; the scan tests in `tests/test_data.py` skip.
 
-## Tracked historical study
+## Historical study
 
 | path | what it is |
 |---|---|
-| `scans/` | Twelve `(10, 512)` float32 matrices of L2-normalised InceptionResnetV1 vectors. |
-| `scans.json` | Curated manifest giving each historical scan its condition and repeat. |
+| `scans/` | Twelve `(10, 512)` float32 matrices of L2-normalised InceptionResnetV1 vectors (local only, gitignored). |
+| `scans.json` | Tracked manifest giving each historical scan its condition and repeat. |
 
 `fem.data.load_scans()` validates shape, finite values and unit norms. `analysis/run_live.py` is a
 **fixed twelve-scan, two-repeats-per-condition experiment**; it does not automatically analyse extra
@@ -42,8 +42,8 @@ python scripts/live_capture.py --intensity flash --direction left --repeat 3 --f
 
 New captures default to **gitignored `data/private-scans/`** and receive a `.npy` template plus a
 `.json` sidecar with a unique capture ID (`name`) and the requested human `label`. The command
-never modifies the published manifest. Keep new scans private; obtain informed consent and agree on
-a study protocol before deliberately moving a copy into `scans/` or changing `scans.json`.
+never modifies the manifest. Keep new scans private; obtain informed consent and agree on a study
+protocol before moving a copy into `scans/` or changing `scans.json`. Neither folder is tracked.
 
 **Do not simply append a third scan to the manifest and run `make live`:** the historical runner
 asserts twelve scans and exactly two repeats per condition. A new multi-subject/live-verification
