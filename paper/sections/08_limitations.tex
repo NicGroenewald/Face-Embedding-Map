@@ -1,0 +1,15 @@
+\section{Limitations}\label{sec:limitations}
+
+\paragraph{One subject, no stranger.} The webcam study has one subject and no stranger was captured. Every live distance is same-person: it measures convenience, not security. A usable threshold needs an impostor distribution, which this study does not have; the cross-domain Olivetti-to-webcam distance is the closest thing to an impostor number and is explicitly domain-confounded.
+
+\paragraph{Olivetti is the best case for raw pixels.} The dataset is tightly cropped and roughly eye-aligned, removing the geometric variability that most damages pixel-space methods. Map A's results are an upper bound for raw pixels, and the same property makes the deep model's task easy, so both maps' absolute accuracy is optimistic.
+
+\paragraph{Small data, weak statistics.} 400 images, 40 identities, ten images per identity, all from a single session. The 1,800 genuine pairs are not independent (each image appears in nine pairs), and the five splits reuse the same images, so split variance is not capture variance. Map B's 0.22\% EER is at the protocol's 0.5\% FRR resolution and should not be read as three significant figures.
+
+\paragraph{Transductive fitting and frozen model.} Map A's PCA is fit on all 400 images, including the probes, which favours Map A; the measured advantage of Map B is therefore conservative. The embedder was not trained or fine-tuned on either dataset, which isolates the representation but says nothing about a model trained on Olivetti or webcam data, and its training corpus is far larger than the evaluation data.
+
+\paragraph{Webcam frames are not independent.} The ten frames per scan are consecutive webcam frames of a moving person: within-scan distance grows from 0.153 at lag~1 to 0.257 at lag~9, and the first frame is a warm-up outlier. Frame-pair counts overstate the effective sample size, which is why scan means are the more meaningful unit. Raw webcam frames were not retained, so alternate crops, detectors, or preprocessing cannot be re-analysed from the saved data.
+
+\paragraph{Detection and thresholds.} The MTCNN implementation crops the O-Net box without a landmark similarity transform, so alignment is detector-box alignment; a landmark-warped pipeline might reduce the direction effect, which this study does not test. Olivetti verification thresholds (EER thresholds 8.51 and 0.84) and the webcam distance scale are not comparable, and the cross-domain minimum (0.887) is domain-confounded. No threshold in this paper should be deployed.
+
+\paragraph{No demographic, sensor, or session diversity.} One dataset with limited demographic variety, one laptop webcam, one model/backbone, no repeated sessions across days. The optional synthetic-lighting ablation was not run, so the illumination analysis is observational and confined to the captured conditions.

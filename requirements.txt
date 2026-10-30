@@ -1,0 +1,13 @@
+# Face Embedding Map — runtime and test dependencies
+# install:  uv pip install -r requirements.txt
+# (kept pinned: the paper's reproducibility section quotes these versions)
+opencv-python==5.0.0.93
+facenet-pytorch==2.5.3
+matplotlib==3.11.2
+numpy==2.5.3
+scikit-learn==1.9.1
+torch==2.14.0
+
+# Analysis/test dependencies (already present in the project venv, DESIGN.md §2)
+pytest==9.1.1
+scipy==1.18.1

@@ -1,0 +1,92 @@
+{
+  "format_version": 1,
+  "subject": "nic",
+  "captured": "2026-09-06",
+  "frames_per_scan": 10,
+  "scans": [
+    {
+      "name": "room_front_1",
+      "file": "06092026-light_face_front_1.npy",
+      "intensity": "room",
+      "direction": "front",
+      "repeat": 1
+    },
+    {
+      "name": "room_front_2",
+      "file": "06092026-light_face_front_2.npy",
+      "intensity": "room",
+      "direction": "front",
+      "repeat": 2
+    },
+    {
+      "name": "room_left_1",
+      "file": "06092026-light_face_left_1.npy",
+      "intensity": "room",
+      "direction": "left",
+      "repeat": 1
+    },
+    {
+      "name": "room_left_2",
+      "file": "06092026-light_face_left_2.npy",
+      "intensity": "room",
+      "direction": "left",
+      "repeat": 2
+    },
+    {
+      "name": "flash_front_1",
+      "file": "06092026-phone_light_face_front_1.npy",
+      "intensity": "flash",
+      "direction": "front",
+      "repeat": 1
+    },
+    {
+      "name": "flash_front_2",
+      "file": "06092026-phone_light_face_front_2.npy",
+      "intensity": "flash",
+      "direction": "front",
+      "repeat": 2
+    },
+    {
+      "name": "flash_left_1",
+      "file": "06092026-phone_light_face_left_1.npy",
+      "intensity": "flash",
+      "direction": "left",
+      "repeat": 1
+    },
+    {
+      "name": "flash_left_2",
+      "file": "06092026-phone_light_face_left_2.npy",
+      "intensity": "flash",
+      "direction": "left",
+      "repeat": 2
+    },
+    {
+      "name": "flash_right_1",
+      "file": "06092026-phone_light_face_right_1.npy",
+      "intensity": "flash",
+      "direction": "right",
+      "repeat": 1
+    },
+    {
+      "name": "flash_right_2",
+      "file": "06092026-phone_light_face_right_2.npy",
+      "intensity": "flash",
+      "direction": "right",
+      "repeat": 2
+    },
+    {
+      "name": "flash_bottom_1",
+      "file": "06092026-phone_light_face_bottom_1.npy",
+      "intensity": "flash",
+      "direction": "bottom",
+      "repeat": 1
+    },
+    {
+      "name": "flash_bottom_2",
+      "file": "06092026-phone_light_face_bottom_2.npy",
+      "intensity": "flash",
+      "direction": "bottom",
+      "repeat": 2
+    }
+  ]
+}

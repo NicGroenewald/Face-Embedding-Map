@@ -1,0 +1,94 @@
+\documentclass[border=4pt,tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,patterns}
+\input{style}
+
+\newcommand{\head}[2]{%
+  \draw[draw=ink, line width=0.6pt, fill=greyfill] (#1,#2) circle (0.46);
+  \fill[ink] (#1-0.16,#2+0.10) circle (0.035);
+  \fill[ink] (#1+0.16,#2+0.10) circle (0.035);
+  \draw[draw=ink, line width=0.5pt] (#1,#2+0.05) -- (#1,#2-0.10);
+  \draw[draw=ink, line width=0.5pt] (#1-0.15,#2-0.26) -- (#1+0.15,#2-0.26);
+}
+\newcommand{\phone}[1]{%
+  \draw[draw=amberedge, fill=amberfill, line width=0.5pt, rounded corners=1pt]
+        ([xshift=-0.13cm,yshift=-0.22cm]#1) rectangle ([xshift=0.13cm,yshift=0.22cm]#1);
+}
+\newcommand{\lamp}[1]{%
+  \draw[draw=ink, fill=amberfill, line width=0.5pt] (#1) circle (0.16);
+  \foreach \a in {0,45,90,135,180,225,270,315}
+    \draw[draw=ink, line width=0.4pt] (#1) ++(\a:0.22) -- ++(\a:0.10);
+}
+\newcommand{\nocapture}[2]{%
+  \head{#1}{#2};
+  \draw[draw=rededge, line width=1.1pt] (#1-0.42,#2-0.42) -- (#1+0.42,#2+0.42);
+  \draw[draw=rededge, line width=1.1pt] (#1-0.42,#2+0.42) -- (#1+0.42,#2-0.42);
+  \node[font=\scriptsize\bfseries, text=rededge, anchor=north] at (#1,#2-0.62) {not captured};
+}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+% ---------------------------------------------------------------- column labels
+\node[font=\small\bfseries, text=ink] at (1.80,5.55) {front};
+\node[font=\small\bfseries, text=ink] at (5.40,5.55) {left};
+\node[font=\small\bfseries, text=ink] at (9.00,5.55) {right};
+\node[font=\small\bfseries, text=ink] at (12.60,5.55) {bottom};
+
+% ---------------------------------------------------------------- room row
+\node[font=\scriptsize\bfseries, text=ink, anchor=east] at (0.25,3.30) {room light};
+\head{1.80}{3.30}
+  \lamp{1.80,4.55}
+  \draw[arr] (1.80,4.30) -- (1.80,3.80);
+  \node[font=\scriptsize, anchor=north] at (1.80,2.60) {room/front};
+
+\head{5.40}{3.30}
+  \lamp{6.60,4.40}
+  \draw[arr] (6.35,4.18) -- (5.85,3.65);
+  \node[font=\scriptsize, anchor=north] at (5.40,2.60) {room/left};
+\nocapture{9.00}{3.30}
+\nocapture{12.60}{3.30}
+
+% ---------------------------------------------------------------- flash row
+\node[font=\scriptsize\bfseries, text=ink, anchor=east] at (0.25,0.55) {phone flash};
+
+\head{1.80}{0.55}
+  \phone{1.80,-0.75}
+  \draw[arr] (1.80,-0.50) -- (1.80,0.05);
+  \node[font=\scriptsize, anchor=north] at (1.80,-0.95) {flash/front};
+
+\head{5.40}{0.55}
+  \phone{4.10,0.55}
+  \draw[arr] (4.38,0.55) -- (4.90,0.55);
+  \node[font=\scriptsize, anchor=north] at (5.40,-0.20) {flash/left};
+
+\head{9.00}{0.55}
+  \phone{10.30,0.55}
+  \draw[arr] (10.02,0.55) -- (9.50,0.55);
+  \node[font=\scriptsize, anchor=north] at (9.00,-0.20) {flash/right};
+
+\head{12.60}{0.55}
+  \phone{12.60,-0.95}
+  \draw[arr] (12.60,-0.70) -- (12.60,-0.05);
+  \node[font=\scriptsize, anchor=north] at (12.60,-1.15) {flash/bottom};
+
+% ---------------------------------------------------------------- source legend
+\lamp{13.55,4.85}
+\node[font=\scriptsize, anchor=west] at (13.78,4.85) {room light};
+\phone{13.55,4.20}
+\node[font=\scriptsize, anchor=west] at (13.78,4.20) {phone flash};
+
+% ---------------------------------------------------------------- design facts
+\node[note, anchor=north west, text width=8.4cm] at (0.05,-1.95)
+  {\textbf{12 scans} $=$ six conditions $\times$ two repeats; \textbf{10 frames} per scan;
+   one subject; captured 6 September 2026. Room light was only available from the front and left,
+   so the design is unbalanced by necessity.};
+\node[note, anchor=north west, text width=5.6cm] at (8.85,-1.95)
+  {Each condition contributes a $(10,512)$ matrix of unit-norm embeddings. Two repeats per
+   condition provide the between-scan reference; frames within a scan are consecutive webcam
+   frames, not independent photographs.};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,335 @@
+{
+  "common": {
+    "schema_version": 1,
+    "created": "2026-10-30T10:54:47Z",
+    "git_commit": "51e1f07",
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0",
+      "facenet-pytorch": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "device": "mps",
+    "seed": 0,
+    "notes": [
+      "Shapes measured with forward hooks on the actual vggface2 checkpoint, not copied from a diagram.",
+      "FLOPs are deliberately not reported: hooks do not measure them and guessing them would be inventing numbers.",
+      "The 'logits' classifier head ships in the checkpoint state dict but is not executed when classify=False, so it is excluded from embedding_params."
+    ]
+  },
+  "model": {
+    "name": "InceptionResnetV1",
+    "pretrained": "vggface2",
+    "classify": false,
+    "checkpoint": {
+      "path": "/Users/nic/.cache/torch/checkpoints/20180402-114759-vggface2.pt",
+      "exists": true,
+      "bytes": 111898327,
+      "sha256": "281cebca8662831adb987a874bdcb36e73f5b1c6dc5ee5878f305e985625d99b"
+    },
+    "input_shape": [
+      1,
+      3,
+      160,
+      160
+    ],
+    "input_pixels": "RGB, standardised (x*255 - 127.5) / 128 on a 0..1 input",
+    "output_dim": 512,
+    "output_shape": [
+      4,
+      512
+    ],
+    "output_l2_normalised": true,
+    "output_norm": {
+      "min": 0.9999999403953552,
+      "mean": 1.0,
+      "max": 1.0
+    },
+    "eval_mode": true,
+    "parameters_requires_grad": false,
+    "total_model_params": 27910327,
+    "classifier_head_params": 4427703,
+    "embedding_params": 23482624
+  },
+  "blocks": {
+    "repeat_1": {
+      "count": 5,
+      "block_type": "Block35",
+      "scale": 0.17,
+      "output_shape": [
+        4,
+        256,
+        17,
+        17
+      ],
+      "params": 387200
+    },
+    "repeat_2": {
+      "count": 10,
+      "block_type": "Block17",
+      "scale": 0.1,
+      "output_shape": [
+        4,
+        896,
+        8,
+        8
+      ],
+      "params": 6900480
+    },
+    "repeat_3": {
+      "count": 5,
+      "block_type": "Block8",
+      "scale": 0.2,
+      "output_shape": [
+        4,
+        1792,
+        3,
+        3
+      ],
+      "params": 8003840
+    },
+    "block8": {
+      "count": 1,
+      "block_type": "Block8",
+      "scale": 1.0,
+      "output_shape": [
+        4,
+        1792,
+        3,
+        3
+      ],
+      "params": 1600768
+    }
+  },
+  "layers": [
+    {
+      "index": 0,
+      "name": "conv2d_1a",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        32,
+        79,
+        79
+      ],
+      "params": 928,
+      "runs_in_forward": true
+    },
+    {
+      "index": 1,
+      "name": "conv2d_2a",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        32,
+        77,
+        77
+      ],
+      "params": 9280,
+      "runs_in_forward": true
+    },
+    {
+      "index": 2,
+      "name": "conv2d_2b",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        64,
+        77,
+        77
+      ],
+      "params": 18560,
+      "runs_in_forward": true
+    },
+    {
+      "index": 3,
+      "name": "maxpool_3a",
+      "type": "MaxPool2d",
+      "output_shape": [
+        4,
+        64,
+        38,
+        38
+      ],
+      "params": 0,
+      "runs_in_forward": true
+    },
+    {
+      "index": 4,
+      "name": "conv2d_3b",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        80,
+        38,
+        38
+      ],
+      "params": 5280,
+      "runs_in_forward": true
+    },
+    {
+      "index": 5,
+      "name": "conv2d_4a",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        192,
+        36,
+        36
+      ],
+      "params": 138624,
+      "runs_in_forward": true
+    },
+    {
+      "index": 6,
+      "name": "conv2d_4b",
+      "type": "BasicConv2d",
+      "output_shape": [
+        4,
+        256,
+        17,
+        17
+      ],
+      "params": 442880,
+      "runs_in_forward": true
+    },
+    {
+      "index": 7,
+      "name": "repeat_1",
+      "type": "Sequential",
+      "output_shape": [
+        4,
+        256,
+        17,
+        17
+      ],
+      "params": 387200,
+      "runs_in_forward": true
+    },
+    {
+      "index": 8,
+      "name": "mixed_6a",
+      "type": "Mixed_6a",
+      "output_shape": [
+        4,
+        896,
+        8,
+        8
+      ],
+      "params": 1710080,
+      "runs_in_forward": true
+    },
+    {
+      "index": 9,
+      "name": "repeat_2",
+      "type": "Sequential",
+      "output_shape": [
+        4,
+        896,
+        8,
+        8
+      ],
+      "params": 6900480,
+      "runs_in_forward": true
+    },
+    {
+      "index": 10,
+      "name": "mixed_7a",
+      "type": "Mixed_7a",
+      "output_shape": [
+        4,
+        1792,
+        3,
+        3
+      ],
+      "params": 3346176,
+      "runs_in_forward": true
+    },
+    {
+      "index": 11,
+      "name": "repeat_3",
+      "type": "Sequential",
+      "output_shape": [
+        4,
+        1792,
+        3,
+        3
+      ],
+      "params": 8003840,
+      "runs_in_forward": true
+    },
+    {
+      "index": 12,
+      "name": "block8",
+      "type": "Block8",
+      "output_shape": [
+        4,
+        1792,
+        3,
+        3
+      ],
+      "params": 1600768,
+      "runs_in_forward": true
+    },
+    {
+      "index": 13,
+      "name": "avgpool_1a",
+      "type": "AdaptiveAvgPool2d",
+      "output_shape": [
+        4,
+        1792,
+        1,
+        1
+      ],
+      "params": 0,
+      "runs_in_forward": true
+    },
+    {
+      "index": 14,
+      "name": "dropout",
+      "type": "Dropout",
+      "output_shape": [
+        4,
+        1792,
+        1,
+        1
+      ],
+      "params": 0,
+      "runs_in_forward": true
+    },
+    {
+      "index": 15,
+      "name": "last_linear",
+      "type": "Linear",
+      "output_shape": [
+        4,
+        512
+      ],
+      "params": 917504,
+      "runs_in_forward": true
+    },
+    {
+      "index": 16,
+      "name": "last_bn",
+      "type": "BatchNorm1d",
+      "output_shape": [
+        4,
+        512
+      ],
+      "params": 1024,
+      "runs_in_forward": true
+    }
+  ],
+  "unused_modules": [
+    {
+      "index": 17,
+      "name": "logits",
+      "type": "Linear",
+      "params": 4427703,
+      "runs_in_forward": false,
+      "reason": "classifier head kept for state-dict compatibility; not executed when classify=False"
+    }
+  ]
+}

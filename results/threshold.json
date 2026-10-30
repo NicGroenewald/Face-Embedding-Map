@@ -1,0 +1,286 @@
+{
+  "common": {
+    "schema_version": 1,
+    "created": "2026-10-30T10:54:42Z",
+    "git_commit": "51e1f07",
+    "python": "3.12.14",
+    "packages": {
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0",
+      "facenet-pytorch": "2.5.3",
+      "matplotlib": "3.11.2"
+    },
+    "device": "mps",
+    "seed": 0,
+    "notes": [
+      "Score = minimum Euclidean distance from a probe image to the 5 enrolment images; decision = accept if score <= threshold. Trials are full-dimensional, no PCA anywhere in this runner.",
+      "Impostor trials: for each identity, the 390 images of the other 39 identities are each scored against that identity's enrolment.",
+      "threshold_curves figure is drawn from the genuine/impostor scores pooled over the 5 primary splits.",
+      "Trial granularity: 200 genuine trials per split give an FRR resolution of 0.5%; 15,600 impostor trials give a FAR resolution of 0.0064%. Map B's mean EER (0.22%) is below the FRR grid resolution, so it should be read as 'at or below the measurement floor', not as a precise 0.22%."
+    ]
+  },
+  "protocol": {
+    "enrol": 5,
+    "probe": 5,
+    "impostor_probes_per_identity": 390,
+    "genuine_trials_per_split": 200,
+    "impostor_trials_per_split": 15600,
+    "splits": "5 random 5/5 splits, seeds 0-4",
+    "identical_for": [
+      "map_a",
+      "map_b"
+    ],
+    "score": "minimum Euclidean distance from probe to the 5 enrolment images",
+    "accept_rule": "distance <= threshold"
+  },
+  "map_a": {
+    "per_split": [
+      {
+        "eer": 0.07499999999999996,
+        "eer_threshold": 8.383009301213251,
+        "tar_at_far_1e-3": 0.615,
+        "tar_at_far_1e-2": 0.765,
+        "auc": 0.979665705128205,
+        "far_at_frr_1pct": 0.33371794871794874,
+        "threshold_at_frr_1pct": 10.135546553121493,
+        "far_at_eer": 0.075,
+        "frr_at_eer": 0.075,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 0
+      },
+      {
+        "eer": 0.08499999999999996,
+        "eer_threshold": 8.514803503846741,
+        "tar_at_far_1e-3": 0.585,
+        "tar_at_far_1e-2": 0.78,
+        "auc": 0.9712275641025641,
+        "far_at_frr_1pct": 0.5342948717948718,
+        "threshold_at_frr_1pct": 11.227742581820067,
+        "far_at_eer": 0.08493589743589744,
+        "frr_at_eer": 0.085,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 1
+      },
+      {
+        "eer": 0.09999999999999998,
+        "eer_threshold": 8.612841161472575,
+        "tar_at_far_1e-3": 0.535,
+        "tar_at_far_1e-2": 0.69,
+        "auc": 0.9604849358974359,
+        "far_at_frr_1pct": 0.5282692307692308,
+        "threshold_at_frr_1pct": 11.08911824848618,
+        "far_at_eer": 0.09993589743589744,
+        "frr_at_eer": 0.1,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 2
+      },
+      {
+        "eer": 0.07532051282051282,
+        "eer_threshold": 8.392292950171507,
+        "tar_at_far_1e-3": 0.635,
+        "tar_at_far_1e-2": 0.765,
+        "auc": 0.9709548076923077,
+        "far_at_frr_1pct": 0.6336538461538461,
+        "threshold_at_frr_1pct": 11.659705077672381,
+        "far_at_eer": 0.07532051282051282,
+        "frr_at_eer": 0.08,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 3
+      },
+      {
+        "eer": 0.09999999999999998,
+        "eer_threshold": 8.6231254396872,
+        "tar_at_far_1e-3": 0.595,
+        "tar_at_far_1e-2": 0.73,
+        "auc": 0.9676407051282051,
+        "far_at_frr_1pct": 0.39974358974358976,
+        "threshold_at_frr_1pct": 10.452377591800316,
+        "far_at_eer": 0.1,
+        "frr_at_eer": 0.1,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 4
+      }
+    ],
+    "mean": {
+      "eer": 0.08706410256410255,
+      "eer_threshold": 8.505214471278254,
+      "tar_at_far_1e-3": 0.593,
+      "tar_at_far_1e-2": 0.746,
+      "auc": 0.9699947435897436,
+      "far_at_frr_1pct": 0.48593589743589743,
+      "threshold_at_frr_1pct": 10.912898010580088,
+      "far_at_eer": 0.08703846153846154,
+      "frr_at_eer": 0.08800000000000001,
+      "frr_at_frr_1pct": 0.01
+    },
+    "std": {
+      "eer": 0.012473871442761695,
+      "eer_threshold": 0.1153947832211201,
+      "tar_at_far_1e-3": 0.03768288736283353,
+      "tar_at_far_1e-2": 0.0362973828257631,
+      "auc": 0.006927247036149016,
+      "far_at_frr_1pct": 0.11890196771166897,
+      "threshold_at_frr_1pct": 0.6132405352453589,
+      "far_at_eer": 0.012459945688016604,
+      "frr_at_eer": 0.011510864433221342,
+      "frr_at_frr_1pct": 0.0
+    }
+  },
+  "map_b": {
+    "per_split": [
+      {
+        "eer": 6.41025641025641e-05,
+        "eer_threshold": 0.7816580036319024,
+        "tar_at_far_1e-3": 1.0,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999990384615385,
+        "far_at_frr_1pct": 6.41025641025641e-05,
+        "threshold_at_frr_1pct": 0.7756808237624897,
+        "far_at_eer": 6.41025641025641e-05,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 0
+      },
+      {
+        "eer": 0.0014102564102564104,
+        "eer_threshold": 0.8572624748911745,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999814102564102,
+        "far_at_frr_1pct": 0.0007692307692307692,
+        "threshold_at_frr_1pct": 0.8382135092968345,
+        "far_at_eer": 0.0014102564102564104,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 1
+      },
+      {
+        "eer": 0.00467948717948718,
+        "eer_threshold": 0.8963369093286512,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999673076923077,
+        "far_at_frr_1pct": 0.000576923076923077,
+        "threshold_at_frr_1pct": 0.8090859790159545,
+        "far_at_eer": 0.00467948717948718,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 2
+      },
+      {
+        "eer": 6.41025641025641e-05,
+        "eer_threshold": 0.7560162573679331,
+        "tar_at_far_1e-3": 1.0,
+        "tar_at_far_1e-2": 1.0,
+        "auc": 0.9999993589743589,
+        "far_at_frr_1pct": 0.0,
+        "threshold_at_frr_1pct": 0.7073595332021061,
+        "far_at_eer": 6.41025641025641e-05,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 3
+      },
+      {
+        "eer": 0.0050000000000000044,
+        "eer_threshold": 0.9067932448134313,
+        "tar_at_far_1e-3": 0.99,
+        "tar_at_far_1e-2": 0.995,
+        "auc": 0.9999253205128205,
+        "far_at_frr_1pct": 0.0007692307692307692,
+        "threshold_at_frr_1pct": 0.8253460314705504,
+        "far_at_eer": 0.005,
+        "frr_at_eer": 0.005,
+        "frr_at_frr_1pct": 0.01,
+        "seed": 4
+      }
+    ],
+    "mean": {
+      "eer": 0.0022435897435897447,
+      "eer_threshold": 0.8396133780066185,
+      "tar_at_far_1e-3": 0.994,
+      "tar_at_far_1e-2": 0.999,
+      "auc": 0.9999744871794871,
+      "far_at_frr_1pct": 0.00043589743589743585,
+      "threshold_at_frr_1pct": 0.791137175349587,
+      "far_at_eer": 0.0022435897435897434,
+      "frr_at_eer": 0.005,
+      "frr_at_frr_1pct": 0.01
+    },
+    "std": {
+      "eer": 0.002435475671988831,
+      "eer_threshold": 0.0678039234275119,
+      "tar_at_far_1e-3": 0.005477225575051666,
+      "tar_at_far_1e-2": 0.002236067977499792,
+      "auc": 3.057043822003996e-05,
+      "far_at_frr_1pct": 0.00037760708910315743,
+      "threshold_at_frr_1pct": 0.052359762070330974,
+      "far_at_eer": 0.00243547567198883,
+      "frr_at_eer": 0.0,
+      "frr_at_frr_1pct": 0.0
+    }
+  },
+  "headline": {
+    "statement": "At a 1% false-accept rate, Map B accepts 99.9% of genuine probes versus 74.6% for Map A; at matched 1% false-reject rate Map A accepts 48.59% of impostors versus 0.044% for Map B.",
+    "map_b_eer": 0.0022435897435897447,
+    "map_a_eer": 0.08706410256410255,
+    "eer_reduction_factor": 38.80571428571426,
+    "far_gap_at_matched_frr": "at FRR=1%: FAR 48.59% (Map A) vs 0.044% (Map B), 1114.8x more impostors accepted by Map A"
+  },
+  "session_bias_check": {
+    "enrol_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "probe_indices": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "map_a": {
+      "eer": 0.08999999999999997,
+      "eer_threshold": 8.558238323671622,
+      "tar_at_far_1e-3": 0.585,
+      "tar_at_far_1e-2": 0.715,
+      "auc": 0.9623855769230769,
+      "far_at_frr_1pct": 0.7152564102564103,
+      "threshold_at_frr_1pct": 12.217168403511096,
+      "far_at_eer": 0.09,
+      "frr_at_eer": 0.09,
+      "frr_at_frr_1pct": 0.01
+    },
+    "map_b": {
+      "eer": 0.002564102564102564,
+      "eer_threshold": 0.8847233719277547,
+      "tar_at_far_1e-3": 0.995,
+      "tar_at_far_1e-2": 1.0,
+      "auc": 0.9999785256410256,
+      "far_at_frr_1pct": 0.0005128205128205128,
+      "threshold_at_frr_1pct": 0.8060723449017987,
+      "far_at_eer": 0.002564102564102564,
+      "frr_at_eer": 0.005,
+      "frr_at_frr_1pct": 0.01
+    },
+    "note": "fixed first-half/second-half split per identity; secondary only, not the paper headline (it removes all split randomness but can encode capture order)"
+  },
+  "score_rule_sensitivity": {
+    "mean_template": {
+      "map_a": {
+        "eer_mean": 0.11852564102564103,
+        "eer_std": 0.009918098201084944,
+        "auc_mean": 0.9462597435897436
+      },
+      "map_b": {
+        "eer_mean": 0.0022179487179487195,
+        "eer_std": 0.002571943140650214,
+        "auc_mean": 0.9999770512820513
+      }
+    },
+    "note": "Primary rule is the minimum distance to the 5 enrolment images. Averaging the enrolment images into one template gives the same ranking, so the Map A vs Map B conclusion is not an artefact of the score rule."
+  }
+}
