@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "face-embedding-map"
-version = "0.1.0"
+version = "0.2.0"
 description = "Controlled comparison of raw-pixel Eigenfaces and frozen deep face embeddings, plus a webcam lighting study"
 requires-python = ">=3.12"
 authors = [{ name = "Nic Groenewald" }]
